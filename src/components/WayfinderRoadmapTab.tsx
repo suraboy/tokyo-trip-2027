@@ -2,19 +2,11 @@
 
 import React from 'react';
 import { WayfinderDecision, MonthData, FlightOption } from '@/types/travel';
-import { INITIAL_WAYFINDER_DECISIONS } from '@/data/mockData';
 import { 
   Compass, 
   CheckCircle2, 
   HelpCircle, 
   Sparkles, 
-  AlertCircle, 
-  ChevronRight, 
-  Calendar, 
-  Plane, 
-  Hotel, 
-  CreditCard,
-  MapPin,
   ArrowDown
 } from 'lucide-react';
 
@@ -82,48 +74,52 @@ export const WayfinderRoadmapTab: React.FC<WayfinderRoadmapTabProps> = ({
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Wayfinder Header */}
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="bento-card">
+        <div className="bento-card-kanji-bg">羅針盤</div>
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span className="badge badge-purple">
-                <Compass size={12} /> Wayfinder Planning System
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <span className="editorial-tag tag-purple">
+                <Compass size={11} /> WAYFINDER DECISION ARCHITECTURE
               </span>
-              <span className="badge badge-sakura">Tokyo Trip 2027 Roadmap</span>
+              <span className="editorial-tag tag-red">TOKYO 2027 MAP</span>
             </div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
-              แผนที่การตัดสินใจตามหลัก Wayfinder (Decision Map)
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px', marginBottom: '8px' }}>
+              แผนที่การตัดสินใจ Wayfinder (Decision Matrix)
             </h2>
-            <p style={{ fontSize: '14px', color: '#94a3b8', maxWidth: '750px', lineHeight: '1.5' }}>
-              หลักการ Wayfinder: คลี่คลายหมอกแห่งความไม่แน่นอน (Fog of War) ทีละการตัดสินใจ 
-              จาก วันเดินทาง → ตั๋วเครื่องบิน → สถานที่ท่องเที่ยว → บัตรโดยสารและที่พัก
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '720px', lineHeight: '1.6' }}>
+              เปิดหมอกความไม่แน่นอน (Fog of War) ทีละจุดตัดสินใจ เพื่อไม่ให้เกิดข้อผิดพลาดในการจองจริง
             </p>
           </div>
 
           <div
             style={{
-              background: 'rgba(139, 92, 246, 0.12)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              borderRadius: '12px',
-              padding: '12px 18px',
+              background: 'var(--bg-surface-raised)',
+              border: '1px solid var(--lavender)',
+              borderRadius: 'var(--radius-md)',
+              padding: '14px 20px',
               textAlign: 'right',
+              boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)',
             }}
           >
-            <div style={{ fontSize: '11px', color: '#c084fc' }}>Wayfinder Status</div>
-            <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
-              2 จาก 5 ปลดล็อกแล้ว
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--lavender)' }}>
+              DECISION PROGRESS
             </div>
-            <div style={{ fontSize: '12px', color: '#34d399' }}>
-              Frontier Active
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-mono)' }}>
+              2 / 5 UNLOCKED
+            </div>
+            <div style={{ fontSize: '12px', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+              FRONTIER: ACTIVE
             </div>
           </div>
         </div>
       </div>
 
-      {/* Decision Flow Sequence */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Decision Sequential Flow */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {decisions.map((dec, index) => {
           const isDecided = dec.status === 'DECIDED';
           const isInProgress = dec.status === 'IN_PROGRESS';
@@ -132,42 +128,40 @@ export const WayfinderRoadmapTab: React.FC<WayfinderRoadmapTabProps> = ({
           return (
             <div key={dec.id}>
               <div
-                className="card"
+                className="bento-card"
                 style={{
                   borderLeft: isDecided
-                    ? '4px solid var(--accent-emerald)'
+                    ? '4px solid var(--matcha-emerald)'
                     : isInProgress
-                    ? '4px solid var(--accent-amber)'
-                    : '4px solid #64748b',
+                    ? '4px solid var(--tokyo-gold)'
+                    : '4px solid var(--text-tertiary)',
                   background: isDecided
-                    ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%)'
+                    ? 'var(--bg-surface-active)'
                     : isFog
-                    ? 'rgba(15, 23, 42, 0.4)'
-                    : 'var(--gradient-card)',
+                    ? 'rgba(14, 18, 26, 0.5)'
+                    : 'var(--grad-dark-bento)',
                   padding: '20px 24px',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div
                       style={{
                         width: '32px',
                         height: '32px',
-                        borderRadius: '8px',
-                        background: isDecided
-                          ? 'rgba(16, 185, 129, 0.2)'
-                          : isInProgress
-                          ? 'rgba(245, 158, 11, 0.2)'
-                          : 'rgba(255, 255, 255, 0.05)',
-                        color: isDecided ? '#34d399' : isInProgress ? '#fbbf24' : '#64748b',
+                        borderRadius: 'var(--radius-xs)',
+                        background: 'var(--bg-surface-raised)',
+                        color: isDecided ? 'var(--matcha-emerald)' : isInProgress ? 'var(--tokyo-gold)' : 'var(--text-tertiary)',
+                        border: '1px solid var(--border-hairline)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        fontFamily: 'var(--font-mono)',
                         fontWeight: 800,
-                        fontSize: '14px',
+                        fontSize: '13px',
                       }}
                     >
-                      {index + 1}
+                      {String(index + 1).padStart(2, '0')}
                     </div>
                     <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#fff' }}>
                       {dec.title}
@@ -176,38 +170,38 @@ export const WayfinderRoadmapTab: React.FC<WayfinderRoadmapTabProps> = ({
 
                   <div>
                     {isDecided && (
-                      <span className="badge badge-emerald">
-                        <CheckCircle2 size={13} /> ปลดล็อกแล้ว (Decided)
+                      <span className="editorial-tag tag-green">
+                        <CheckCircle2 size={12} /> DECIDED
                       </span>
                     )}
                     {isInProgress && (
-                      <span className="badge badge-amber">
-                        <Sparkles size={13} /> อยู่ที่ขอบความรู้ (Frontier)
+                      <span className="editorial-tag tag-gold">
+                        <Sparkles size={12} /> FRONTIER
                       </span>
                     )}
                     {isFog && (
-                      <span className="badge" style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8' }}>
-                        <HelpCircle size={13} /> ในหมอก (Fog of War)
+                      <span className="editorial-tag" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-tertiary)' }}>
+                        <HelpCircle size={12} /> FOG OF WAR
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px', marginTop: '12px' }}>
-                  <div style={{ padding: '10px 14px', background: 'rgba(0,0,0,0.25)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '3px' }}>
-                      ข้อสรุป / การตัดสินใจปัจจุบัน
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
+                  <div style={{ padding: '12px 14px', background: 'var(--bg-surface-raised)', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-hairline)' }}>
+                    <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', marginBottom: '3px' }}>
+                      // CURRENT CONCLUSION
                     </div>
                     <div style={{ fontSize: '13.5px', color: isDecided ? '#34d399' : '#fff', fontWeight: isDecided ? 700 : 500 }}>
                       {dec.selectedOption || dec.summaryTh}
                     </div>
                   </div>
 
-                  <div style={{ padding: '10px 14px', background: 'rgba(0,0,0,0.25)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '3px' }}>
-                      ผลกระทบต่อขั้นตอนถัดไป (Impact)
+                  <div style={{ padding: '12px 14px', background: 'var(--bg-surface-raised)', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-hairline)' }}>
+                    <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', marginBottom: '3px' }}>
+                      // DOWNSTREAM IMPACT
                     </div>
-                    <div style={{ fontSize: '13px', color: '#cbd5e1' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                       {dec.impactTh}
                     </div>
                   </div>
@@ -216,7 +210,7 @@ export const WayfinderRoadmapTab: React.FC<WayfinderRoadmapTabProps> = ({
 
               {index < decisions.length - 1 && (
                 <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
-                  <ArrowDown size={18} color="rgba(255, 255, 255, 0.2)" />
+                  <ArrowDown size={16} color="var(--border-strong)" />
                 </div>
               )}
             </div>

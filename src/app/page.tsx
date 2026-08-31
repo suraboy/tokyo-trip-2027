@@ -1,33 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
-import { TabType, Currency, MonthData, FlightOption, Attraction } from '@/types/travel';
-import { MONTHS_DATA, FLIGHT_OPTIONS, ATTRACTIONS_DATA } from '@/data/mockData';
+import React, { useState, useEffect } from 'react';
+import { Currency, CommunityTripPlan } from '@/types/travel';
 import { Navbar } from '@/components/Navbar';
 import { OverviewTab } from '@/components/OverviewTab';
-import { BestDatesTab } from '@/components/BestDatesTab';
-import { FlightsTab } from '@/components/FlightsTab';
-import { AttractionsTab } from '@/components/AttractionsTab';
-import { ItineraryBudgetTab } from '@/components/ItineraryBudgetTab';
-import { WayfinderRoadmapTab } from '@/components/WayfinderRoadmapTab';
-import { AttractionModal } from '@/components/AttractionModal';
+import { CreateTripModal } from '@/components/CreateTripModal';
+import { TripPlannerWorkspace } from '@/components/TripPlannerWorkspace';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [currency, setCurrency] = useState<Currency>('THB');
-  const [selectedMonth, setSelectedMonth] = useState<MonthData>(MONTHS_DATA[10]); // Default November (Score 97)
-  const [selectedFlight, setSelectedFlight] = useState<FlightOption | undefined>(FLIGHT_OPTIONS[0]); // TG676
-  const [wishlistIds, setWishlistIds] = useState<string[]>([
-    'shibuya-sky',
-    'teamlab-planets',
-    'sensoji-asakusa',
-    'fuji-kawaguchiko',
-    'tsukiji-outer-market',
-    'tokyo-disneysea',
-  ]);
-  const [tripDurationDays, setTripDurationDays] = useState<number>(7);
-  const [modalAttraction, setModalAttraction] = useState<Attraction | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Community Trip Plans State from DB
+  const [communityPlans, setCommunityPlans] = useState<CommunityTripPlan[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+
+  // Active Trip Planner Workspace State
+  const [isWorkspaceActive, setIsWorkspaceActive] = useState<boolean>(false);
+  const [activeWorkspacePlan, setActiveWorkspacePlan] = useState<CommunityTripPlan | null>(null);
+  const [workspaceTripTitle, setWorkspaceTripTitle] = useState<string>('ทริปโตเกียว & ฟูจิ 2027');
+  const [workspaceCreatorName, setWorkspaceCreatorName] = useState<string>('SuraBoy');
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -36,40 +29,73 @@ export default function Home() {
     }, 2800);
   };
 
-  const handleToggleWishlist = (id: string) => {
-    const spot = ATTRACTIONS_DATA.find((a) => a.id === id);
-    const spotName = spot ? spot.nameTh.split('(')[0] : 'สถานที่';
-
-    if (wishlistIds.includes(id)) {
-      setWishlistIds(wishlistIds.filter((item) => item !== id));
-      showToast(`ลบ "${spotName}" ออกจาก Wishlist แล้ว`);
-    } else {
-      setWishlistIds([...wishlistIds, id]);
-      showToast(`เพิ่ม "${spotName}" ลงใน Wishlist แล้ว ❤️`);
+  const fetchPlansFromDb = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/trips');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.trips)) {
+        setCommunityPlans(data.trips);
+      }
+    } catch (e) {
+      console.error('Failed to fetch from DB', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSelectMonth = (month: MonthData) => {
-    setSelectedMonth(month);
-    showToast(`เลือกช่วงเวลาเดินทางเป็น: ${month.nameTh} (${month.seasonTh}) ✨`);
+  useEffect(() => {
+    fetchPlansFromDb();
+  }, []);
+
+  // Launch fresh workspace from modal
+  const handleStartNewWorkspace = (title: string, creator: string) => {
+    setActiveWorkspacePlan(null);
+    setWorkspaceTripTitle(title);
+    setWorkspaceCreatorName(creator);
+    setIsWorkspaceActive(true);
+    showToast(`เปิด Dashboard วางแผนทริป "${title}" แล้ว 🚀`);
   };
 
-  const handleSelectFlight = (flight: FlightOption) => {
-    setSelectedFlight(flight);
-    showToast(`เลือกเที่ยวบิน: ${flight.airline} (${flight.flightNumber}) ✈️`);
+  // Launch workspace from an existing community plan card
+  const handleOpenPlanInWorkspace = (trip: CommunityTripPlan) => {
+    setActiveWorkspacePlan(trip);
+    setWorkspaceTripTitle(trip.trip_title);
+    setWorkspaceCreatorName(trip.creator_name);
+    setIsWorkspaceActive(true);
+    showToast(`เปิด Dashboard สำหรับทริป "${trip.trip_title}" แล้ว 🗺️`);
   };
 
-  const wishlistAttractions = ATTRACTIONS_DATA.filter((a) => wishlistIds.includes(a.id));
+  const handleSaveTripFromWorkspace = async (newPlanData: Partial<CommunityTripPlan>) => {
+    try {
+      showToast('กำลังบันทึกข้อมูลลง Database...');
+      const res = await fetch('/api/trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPlanData),
+      });
+      const data = await res.json();
+
+      if (data.success && data.trip) {
+        setActiveWorkspacePlan(data.trip);
+        setCommunityPlans((prev) => {
+          const exists = prev.some((p) => p.id === data.trip.id);
+          if (exists) {
+            return prev.map((p) => (p.id === data.trip.id ? data.trip : p));
+          }
+          return [data.trip, ...prev];
+        });
+        showToast(`บันทึกแพลน "${data.trip.trip_title}" ลง DB สำเร็จ! 💾`);
+      } else {
+        showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      }
+    } catch (e) {
+      showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ Database');
+    }
+  };
 
   return (
     <div className="app-container">
-      {/* Background glow orbs */}
-      <div className="bg-glow-container">
-        <div className="bg-glow-circle-1" />
-        <div className="bg-glow-circle-2" />
-        <div className="bg-glow-circle-3" />
-      </div>
-
       {/* Floating Toast Notification */}
       {toastMessage && (
         <div
@@ -77,20 +103,19 @@ export default function Home() {
             position: 'fixed',
             bottom: '24px',
             right: '24px',
-            background: 'rgba(15, 23, 42, 0.95)',
-            border: '1px solid var(--accent-pink)',
-            boxShadow: '0 10px 25px rgba(244, 63, 94, 0.3)',
-            borderRadius: '12px',
-            padding: '12px 20px',
+            background: 'var(--bg-surface-active)',
+            border: '1px solid var(--vermilion)',
+            boxShadow: '0 10px 25px var(--vermilion-glow)',
+            borderRadius: 'var(--radius-pill)',
+            padding: '12px 22px',
             color: '#fff',
             fontSize: '13.5px',
-            fontWeight: 600,
+            fontWeight: 700,
             zIndex: 1000,
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             backdropFilter: 'blur(10px)',
-            animation: 'modalIn 0.2s ease-out',
           }}
         >
           <span>{toastMessage}</span>
@@ -99,79 +124,38 @@ export default function Home() {
 
       {/* Navigation Header */}
       <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
         currency={currency}
         setCurrency={setCurrency}
-        wishlistCount={wishlistIds.length}
-        selectedMonthName={selectedMonth.nameTh}
+        onOpenCreateModal={() => setIsCreateModalOpen(true)}
       />
 
-      {/* Main Content Area */}
+      {/* Main Workspace or Home Overview */}
       <main>
-        {activeTab === 'overview' && (
+        {isWorkspaceActive ? (
+          <TripPlannerWorkspace
+            key={activeWorkspacePlan ? activeWorkspacePlan.id : 'new-workspace'}
+            tripTitle={workspaceTripTitle}
+            creatorName={workspaceCreatorName}
+            initialPlan={activeWorkspacePlan}
+            currency={currency}
+            onBackToHome={() => setIsWorkspaceActive(false)}
+            onSaveTrip={handleSaveTripFromWorkspace}
+          />
+        ) : (
           <OverviewTab
-            setActiveTab={setActiveTab}
-            selectedMonth={selectedMonth}
-            selectedFlight={selectedFlight}
-            wishlistAttractions={wishlistAttractions}
             currency={currency}
-            tripDurationDays={tripDurationDays}
-          />
-        )}
-
-        {activeTab === 'dates' && (
-          <BestDatesTab
-            selectedMonth={selectedMonth}
-            onSelectMonth={handleSelectMonth}
-          />
-        )}
-
-        {activeTab === 'flights' && (
-          <FlightsTab
-            selectedFlight={selectedFlight}
-            onSelectFlight={handleSelectFlight}
-            currency={currency}
-            selectedMonthName={selectedMonth.nameTh}
-          />
-        )}
-
-        {activeTab === 'attractions' && (
-          <AttractionsTab
-            wishlistIds={wishlistIds}
-            onToggleWishlist={handleToggleWishlist}
-            onSelectAttractionForModal={(a) => setModalAttraction(a)}
-            currency={currency}
-          />
-        )}
-
-        {activeTab === 'itinerary' && (
-          <ItineraryBudgetTab
-            wishlistAttractions={wishlistAttractions}
-            selectedFlight={selectedFlight}
-            selectedMonth={selectedMonth}
-            currency={currency}
-            tripDurationDays={tripDurationDays}
-            setTripDurationDays={setTripDurationDays}
-          />
-        )}
-
-        {activeTab === 'wayfinder' && (
-          <WayfinderRoadmapTab
-            selectedMonth={selectedMonth}
-            selectedFlight={selectedFlight}
-            wishlistCount={wishlistIds.length}
+            communityPlans={communityPlans}
+            onOpenCreateModal={() => setIsCreateModalOpen(true)}
+            onSelectTripForDetail={handleOpenPlanInWorkspace}
           />
         )}
       </main>
 
-      {/* Attraction Detail Modal */}
-      <AttractionModal
-        attraction={modalAttraction}
-        onClose={() => setModalAttraction(null)}
-        currency={currency}
-        isWishlisted={modalAttraction ? wishlistIds.includes(modalAttraction.id) : false}
-        onToggleWishlist={handleToggleWishlist}
+      {/* 1-Step Quick Start Modal */}
+      <CreateTripModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onStartWorkspace={handleStartNewWorkspace}
       />
     </div>
   );

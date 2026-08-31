@@ -3,7 +3,7 @@
 import React from 'react';
 import { Attraction, Currency } from '@/types/travel';
 import { JPY_TO_THB_RATE } from '@/data/mockData';
-import { X, Clock, Train, Heart, CheckCircle2, DollarSign, Star, Compass } from 'lucide-react';
+import { X, Clock, Train, Heart, CheckCircle2, DollarSign, Star } from 'lucide-react';
 
 interface AttractionModalProps {
   attraction: Attraction | null;
@@ -24,16 +24,16 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
 
   const displayPrice =
     attraction.priceJPY === 0
-      ? 'ฟรี (Free Entry)'
+      ? 'FREE ENTRY'
       : currency === 'THB'
-      ? `≈ ฿${Math.round(attraction.priceJPY * JPY_TO_THB_RATE).toLocaleString()} THB (${attraction.priceJPY.toLocaleString()} JPY)`
+      ? `฿${Math.round(attraction.priceJPY * JPY_TO_THB_RATE).toLocaleString()} THB (¥${attraction.priceJPY.toLocaleString()})`
       : `¥${attraction.priceJPY.toLocaleString()} JPY`;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Modal Image Header */}
-        <div style={{ position: 'relative', height: '240px', overflow: 'hidden' }}>
+        {/* Header Photo */}
+        <div style={{ position: 'relative', height: '260px', overflow: 'hidden' }}>
           <img
             src={attraction.imageUrl}
             alt={attraction.nameEn}
@@ -43,7 +43,7 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(to top, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0.2) 60%, rgba(0,0,0,0.5) 100%)',
+              background: 'linear-gradient(to top, #0d1118 0%, rgba(13, 17, 24, 0.3) 60%, rgba(0,0,0,0.6) 100%)',
             }}
           />
 
@@ -55,8 +55,8 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
               right: '16px',
               width: '36px',
               height: '36px',
-              borderRadius: '50%',
-              background: 'rgba(0, 0, 0, 0.6)',
+              borderRadius: 'var(--radius-sm)',
+              background: 'rgba(0, 0, 0, 0.7)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               color: '#fff',
               display: 'flex',
@@ -65,21 +65,21 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
               cursor: 'pointer',
             }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
 
           <div style={{ position: 'absolute', bottom: '16px', left: '20px', right: '20px' }}>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-              <span className="badge badge-sakura">{attraction.city}</span>
-              <span className="badge badge-cyan">{attraction.category}</span>
-              <span className="badge badge-amber">
-                <Star size={12} fill="#fbbf24" /> Must Visit {attraction.mustVisitScore}/100
+              <span className="editorial-tag tag-red">{attraction.city}</span>
+              <span className="editorial-tag tag-cyan">{attraction.category}</span>
+              <span className="editorial-tag tag-gold">
+                <Star size={11} fill="#facc15" /> MUST VISIT {attraction.mustVisitScore}/100
               </span>
             </div>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#fff', letterSpacing: '-0.5px' }}>
               {attraction.nameTh}
             </h2>
-            <p style={{ fontSize: '13px', color: '#cbd5e1' }}>
+            <p style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
               {attraction.nameEn} • {attraction.nameJp}
             </p>
           </div>
@@ -93,35 +93,36 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '12px',
-              padding: '12px',
-              background: 'rgba(255, 255, 255, 0.04)',
-              borderRadius: '12px',
+              padding: '12px 16px',
+              background: 'var(--bg-surface-raised)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-hairline)',
               marginBottom: '20px',
             }}
           >
             <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Clock size={12} /> เวลาที่แนะนำ
+              <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                [EST. DURATION]
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff', marginTop: '4px' }}>
-                {attraction.estimatedTimeHours} ชั่วโมง ({attraction.recommendedTimeOfDay})
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff', marginTop: '3px' }}>
+                {attraction.estimatedTimeHours}H ({attraction.recommendedTimeOfDay})
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <DollarSign size={12} /> ค่าเข้าชม
+              <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                [ENTRANCE FEE]
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#38bdf8', marginTop: '4px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--fuji-cyan)', marginTop: '3px', fontFamily: 'var(--font-mono)' }}>
                 {displayPrice}
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Train size={12} /> สถานีใกล้สุด
+              <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                [NEAREST METRO]
               </div>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {attraction.nearestStation}
               </div>
             </div>
@@ -129,67 +130,58 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
 
           {/* Description */}
           <div style={{ marginBottom: '20px' }}>
-            <h4 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              รายละเอียดสถานที่
-            </h4>
-            <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#e2e8f0' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '6px' }}>
+              // PLACE OVERVIEW
+            </div>
+            <p style={{ fontSize: '13.5px', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
               {attraction.descriptionTh}
             </p>
           </div>
 
-          {/* Highlight */}
+          {/* Highlight Callout */}
           <div
             style={{
-              padding: '14px 16px',
-              background: 'rgba(244, 63, 94, 0.08)',
-              borderLeft: '3px solid var(--accent-pink)',
-              borderRadius: '0 8px 8px 0',
+              padding: '14px 18px',
+              background: 'rgba(255, 42, 95, 0.08)',
+              borderLeft: '3px solid var(--vermilion)',
+              borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
               marginBottom: '20px',
             }}
           >
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#fb7185', marginBottom: '4px' }}>
-              ✨ จุดเด่นไฮไลท์ที่ไม่ควรพลาด:
+            <div style={{ fontSize: '12px', fontWeight: 800, color: '#ff4d79', marginBottom: '4px', fontFamily: 'var(--font-mono)' }}>
+              ★ KEY HIGHLIGHT:
             </div>
             <div style={{ fontSize: '13.5px', color: '#fff' }}>
               {attraction.highlightTh}
             </div>
           </div>
 
-          {/* Practical Tips */}
+          {/* Pro Tips */}
           <div style={{ marginBottom: '24px' }}>
-            <h4 style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              💡 เคล็ดลับการเที่ยว & ข้อควรระวัง (Pro Tips)
-            </h4>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '10px' }}>
+              // EXPEDITION PROTOCOLS & PRO TIPS
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {attraction.tipsTh.map((tip, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#cbd5e1' }}>
-                  <CheckCircle2 size={16} color="#34d399" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  <CheckCircle2 size={15} color="#34d399" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <span>{tip}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Tags */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '24px' }}>
-            {attraction.tags.map((tag, idx) => (
-              <span key={idx} style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', fontSize: '12px', color: '#94a3b8' }}>
-                #{tag}
-              </span>
-            ))}
-          </div>
-
           {/* Action Buttons */}
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={() => onToggleWishlist(attraction.id)}
-              className={isWishlisted ? 'btn-secondary' : 'btn-primary'}
+              className={isWishlisted ? 'btn-editorial-secondary' : 'btn-editorial-primary'}
               style={{ flex: 1, justifyContent: 'center' }}
             >
-              <Heart size={16} fill={isWishlisted ? '#f43f5e' : 'none'} color={isWishlisted ? '#f43f5e' : '#fff'} />
-              <span>{isWishlisted ? 'ลบออกจาก Wishlist' : 'เพิ่มใน Wishlist ทริปนี้'}</span>
+              <Heart size={16} fill={isWishlisted ? 'var(--vermilion)' : 'none'} color={isWishlisted ? 'var(--vermilion)' : '#fff'} />
+              <span>{isWishlisted ? 'ลบออกจาก WISHLIST' : 'เพิ่มใน WISHLIST ทริปนี้'}</span>
             </button>
-            <button onClick={onClose} className="btn-secondary" style={{ padding: '10px 20px' }}>
+            <button onClick={onClose} className="btn-editorial-secondary" style={{ padding: '10px 20px' }}>
               ปิด
             </button>
           </div>

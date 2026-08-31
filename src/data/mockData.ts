@@ -1,4 +1,4 @@
-import { MonthData, FlightOption, Attraction, WayfinderDecision } from '@/types/travel';
+import { MonthData, FlightOption, Attraction, WayfinderDecision, CommunityTripPlan, HotelOption } from '@/types/travel';
 
 export const JPY_TO_THB_RATE = 0.235; // 100 JPY ≈ 23.5 THB
 
@@ -461,6 +461,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'วันลมแรงหรือฝนตก ชั้นดาดฟ้าเปิดโล่งอาจปิดให้บริการชั่วคราว',
     ],
     tags: ['Must Visit', 'วิวพาโนรามา', 'Sunset Spot', 'Instagrammable'],
+    lat: 35.6580, lng: 139.7016,
   },
   {
     id: 'teamlab-planets',
@@ -486,6 +487,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ควรจองรอบเช้าสุด 09:00 - 10:00 เพื่อคนน้อย ถ่ายรูปไม่ติดคน',
     ],
     tags: ['Digital Art', 'Interactive', 'Must Visit', 'Indoor'],
+    lat: 35.6424, lng: 139.7874,
   },
   {
     id: 'sensoji-asakusa',
@@ -510,6 +512,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ร้านของกินบนถนนนากามิเสะเปิดประมาณ 09:30 - 18:00 ห้ามเดินกิน ให้ยืนกินหน้าร้าน',
     ],
     tags: ['Historic', 'Culture', 'Free Entry', 'Street Food'],
+    lat: 35.7148, lng: 139.7967,
   },
   {
     id: 'meiji-shrine-harajuku',
@@ -534,6 +537,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ทะลุออก Harajuku ไปเดินช้อปปิ้งต่อที่ถนน Cat Street ไปจนถึง Omotesando แหล่งแบรนด์เนมและสถาปัตยกรรม',
     ],
     tags: ['Nature & Forest', 'Shinto Shrine', 'Fashion', 'Cafe Hopping'],
+    lat: 35.6764, lng: 139.6993,
   },
   {
     id: 'shinjuku-gyoen',
@@ -559,6 +563,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ปิดทุกวันจันทร์ (ยกเว้นช่วงฤดูซากุระปลายมี.ค.-เม.ย. เปิดทุกวัน)',
     ],
     tags: ['Sakura Spot', 'Autumn Foliage', 'Picnic', 'Peaceful'],
+    lat: 35.6852, lng: 139.7100,
   },
   {
     id: 'fuji-kawaguchiko',
@@ -584,6 +589,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ช่วงเช้า 07:00 - 10:00 ฟ้าจะเปิดเห็นฟูจิชัดที่สุด ช่วงบ่ายมักมีเมฆบัง',
     ],
     tags: ['Day Trip', 'Mt Fuji', 'Top Highlight', 'Scenic Train'],
+    lat: 35.5116, lng: 138.7692,
   },
   {
     id: 'akihabara-electric-town',
@@ -608,6 +614,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'อย่าลืมพกพาสปอร์ตสำหรับทำ Tax Refund (ลดภาษี 10%) เมื่อซื้อสินค้าเกิน 5,500 เยน',
     ],
     tags: ['Anime', 'Figure & Gacha', 'Shopping', 'Tech & Games'],
+    lat: 35.7023, lng: 139.7745,
   },
   {
     id: 'tsukiji-outer-market',
@@ -633,6 +640,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'เดินต่ออีกเพียง 10 นาทีเข้าสู่ย่านหรู Ginza เพื่อช้อปปิ้งต่อได้เลย',
     ],
     tags: ['Street Food', 'Fresh Seafood', 'Morning Spot', 'Must Eat'],
+    lat: 35.6654, lng: 139.7707,
   },
   {
     id: 'tokyo-disneysea',
@@ -657,6 +665,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'เพื่อเข้าโซนใหม่ Fantasy Springs ควรไปรอหน้าประตูก่อนเวลาเปิดอย่างน้อย 60-90 นาที',
     ],
     tags: ['Theme Park', 'Fantasy Springs', 'Disney Sea', 'Full Day Trip'],
+    lat: 35.6267, lng: 139.8851,
   },
   {
     id: 'ginza-shopping',
@@ -681,6 +690,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ชั้นดาดฟ้าของ Ginza Six มีสวนหย่อมเปิดฟรี มองเห็นวิวเมืองสวยงาม',
     ],
     tags: ['Shopping', 'Architecture', 'Flagship Store', 'Luxury & Cafes'],
+    lat: 35.6717, lng: 139.7649,
   },
   {
     id: 'kamakura-enoshima',
@@ -705,6 +715,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'หากไปเกาะเอโนชิมะ ช่วงเย็นมีวิวพระอาทิตย์ตกริมทะเลและวิวฟูจิเหนือน้ำที่สวยงามมาก',
     ],
     tags: ['Coastal Train', 'Historic Buddha', 'Anime Slam Dunk', 'Day Trip'],
+    lat: 35.3192, lng: 139.5467,
   },
   {
     id: 'fushimi-inari-kyoto',
@@ -729,6 +740,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ถ้าเดินขึ้นไปถึงจุด Yotsutsuji (ครึ่งทางเขา) จะได้ชมวิวมุมสูงของเมืองเกียวโต',
     ],
     tags: ['Kyoto Top 1', 'Torii Gate Tunnel', 'Shinto Shrine', 'Free Entry'],
+    lat: 34.9671, lng: 135.7727,
   },
   {
     id: 'usj-osaka',
@@ -753,6 +765,7 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'ดาวน์โหลด USJ App สำหรับกดจอง Timed Entry E-Ticket ฟรีทันทีที่สแกนตั๋วเข้าประตู',
     ],
     tags: ['Mario World', 'Theme Park', 'Osaka Highlight', 'Full Day Trip'],
+    lat: 34.6654, lng: 135.4323,
   },
   {
     id: 'dotonbori-shinsaibashi',
@@ -777,6 +790,107 @@ export const ATTRACTIONS_DATA: Attraction[] = [
       'เดินต่อเนื่องไปยังย่าน Amerikamura (American Village) และ Denden Town ย่านโอตาคุโอซาก้าได้สะดวก',
     ],
     tags: ['Glico Sign', 'Osaka Street Food', 'Nightlife', 'Shopping Arcade'],
+    lat: 34.6687, lng: 135.5013,
+  },
+  {
+    id: 'hakone-lake-ashi',
+    nameEn: 'Hakone & Lake Ashi Pirate Ship',
+    nameJp: '箱根・芦ノ湖',
+    nameTh: 'ฮาโกเนะ & ล่องเรือโจรสลัดทะเลสาบอาชิ (ออนเซ็น & วิวฟูจิ)',
+    city: 'Fuji/Hakone',
+    area: 'Kanagawa',
+    category: 'Nature & View',
+    descriptionTh: 'เมืองออนเซ็นชื่อดัง ล่องเรือโจรสลัดชมทะเลสาบอาชิ ขึ้นกระเช้า Hakone Ropeway ชมหุบเขาไข่ดำโอวาคุดานิ (Owakudani) และเสาโทริอิกลางน้ำศาลเจ้าฮาโกเนะ',
+    highlightTh: 'ไข่ดำโอวาคุดานิ กิน 1 ฟองอายุยืน 7 ปี, เสาโทริอิกลางน้ำ Heiwa no Torii, วิวฟูจิเหนือน้ำ',
+    estimatedTimeHours: 8,
+    recommendedTimeOfDay: 'Morning',
+    priceJPY: 4000,
+    nearestStation: 'Hakone-Yumoto Station (นั่ง Odakyu Romancecar จากชินจูกุ 85 นาที)',
+    walkingMinutes: 0,
+    crowdRating: 4,
+    mustVisitScore: 94,
+    imageUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80',
+    tipsTh: [
+      'ใช้บัตร Hakone Freepass นั่งรถไฟ รถราง กระเช้า เรือโจรสลัด และรถบัสได้ไม่จำกัด',
+      'นั่งรถไฟด่วนพิเศษ Odakyu Romancecar จากชินจูกุ สะดวกที่สุด',
+    ],
+    tags: ['Day Trip', 'Onsen', 'Pirate Ship', 'Mt Fuji View', 'Owakudani'],
+    lat: 35.2326, lng: 139.1070,
+  },
+  {
+    id: 'nikko-toshogu',
+    nameEn: 'Nikko Toshogu Shrine & Kegon Falls',
+    nameJp: '日光東照宮',
+    nameTh: 'นิกโก้ ศาลเจ้าโทโชกุมรดกโลก & น้ำตกเคกอน',
+    city: 'Nikko',
+    area: 'Tochigi',
+    category: 'Culture & Shrine',
+    descriptionTh: 'เมืองมรดกโลกท่ามกลางขุนเขา ศาลเจ้าโทโชกุที่ประดิษฐานของโชกุนโทกุงาวะ อิเอยาสุ สถาปัตยกรรมไม้แกะสลักสีทองวิจิตรอันดับหนึ่งของญี่ปุ่น และน้ำตกเคกอนสูง 97 เมตร',
+    highlightTh: 'ภาพแกะสลักลิง 3 ตัว (ไม่มอง ไม่พูด ไม่ฟัง), ประตูโยเมมง (Yomeimon Gate), สะพานแดงชินเคียว',
+    estimatedTimeHours: 8.5,
+    recommendedTimeOfDay: 'Morning',
+    priceJPY: 1300,
+    nearestStation: 'Tobu-Nikko Station (นั่ง Tobu Spacia X จากอาซากุสะ 1h 50m)',
+    walkingMinutes: 10,
+    crowdRating: 3,
+    mustVisitScore: 93,
+    imageUrl: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=800&auto=format&fit=crop&q=80',
+    tipsTh: [
+      'นั่งรถไฟ Tobu Limited Express Spacia X ใหม่ล่าสุดจากสถานี Asakusa สะดวกและหรูหรามาก',
+      'ช่วงฤดูใบไม้เปลี่ยนสีเดือนตุลาคม-พฤศจิกายน เส้นทางขึ้นเขานิกโก้สวยงามติดอันดับประเทศ',
+    ],
+    tags: ['World Heritage', 'Day Trip', 'Historic Shrine', 'Spacia X', 'Kegon Falls'],
+    lat: 36.7580, lng: 139.5987,
+  },
+  {
+    id: 'yokohama-minatomirai',
+    nameEn: 'Yokohama Minato Mirai & Chinatown',
+    nameJp: '横浜みなとみらい',
+    nameTh: 'โยโกฮาม่า มินาโตะมิไร & ไชน่าทาวน์ (เมืองท่าริมอ่าวสุดโรแมนติก)',
+    city: 'Yokohama',
+    area: 'Kanagawa',
+    category: 'Shopping & Food',
+    descriptionTh: 'เมืองท่าริมทะเล ห่างโตเกียวเพียง 30 นาที สัมผัสบรรยากาศโกดังอิฐแดง Red Brick Warehouse, นั่งกระเช้าลอยฟ้าข้ามอ่าว Yokohama Air Cabin, ชิมเสี่ยวหลงเปาไชน่าทาวน์ที่ใหญ่ที่สุดในญี่ปุ่น',
+    highlightTh: 'Yokohama Air Cabin กระเช้าข้ามเมือง, พิพิธภัณฑ์บะหมี่ถ้วย Cup Noodles Museum, วิวกลางคืนริมอ่าว',
+    estimatedTimeHours: 5,
+    recommendedTimeOfDay: 'Afternoon',
+    priceJPY: 1000,
+    nearestStation: 'Sakuragicho Station / Minatomirai Station (นั่ง JR Tokaido จาก Tokyo Station 28 นาที)',
+    walkingMinutes: 3,
+    crowdRating: 4,
+    mustVisitScore: 91,
+    imageUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&auto=format&fit=crop&q=80',
+    tipsTh: [
+      'เดินทางง่ายมาก นั่งรถไฟสาย Tokaido หรือ Shonan-Shinjuku เพียง 25-30 นาทีจากชินจูกุ/ชิบูย่า/โตเกียว',
+      'แวะทำบะหมี่ถ้วยที่มีถ้วยเดียวในโลกที่ Cup Noodles Museum',
+    ],
+    tags: ['Day Trip', 'Port City', 'Chinatown', 'Romantic Night View', 'Cable Car'],
+    lat: 35.4437, lng: 139.6380,
+  },
+  {
+    id: 'kawagoe-little-edo',
+    nameEn: 'Kawagoe Little Edo (Koedo)',
+    nameJp: '川越小江戸',
+    nameTh: 'คาวาโกเอะ เมืองเก่าลิตเติ้ลเอโดะ (หอระฆังโบราณ & ถนนขนมหวาน)',
+    city: 'Tokyo',
+    area: 'Saitama',
+    category: 'Culture & Shrine',
+    descriptionTh: 'ย้อนเวลาสู่อดีตยุคเอโดะ ห่างโตเกียวเพียง 30 นาที ชมอาคารบ้านเรือนไม้โบราณสไตล์คุระซึคุริ (Kurazukuri), สัญลักษณ์หอระฆังบอกเวลา Toki no Kane, และถนนลูกกวาด Kashiya Yokocho',
+    highlightTh: 'หอระฆังโบราณ Toki no Kane, ขนมมันหวานคาวาโกะเอะ, ศาลเจ้า Hikawa ขอพรความรัก',
+    estimatedTimeHours: 4.5,
+    recommendedTimeOfDay: 'Morning',
+    priceJPY: 0,
+    nearestStation: 'Hon-Kawagoe Station (Seibu Shinjuku Line 45 นาที)',
+    walkingMinutes: 8,
+    crowdRating: 3,
+    mustVisitScore: 89,
+    imageUrl: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80',
+    tipsTh: [
+      'นั่งรถไฟ Seibu Red Arrow หรือ Tobu Tojo Line จากชินจูกุหรืออิเคะบุคุโระเพียง 30-45 นาที',
+      'เช่าชุดกิโมโนเดินถ่ายรูปเข้ากับบรรยากาศตึกแถวโบราณมาก',
+    ],
+    tags: ['Day Trip', 'Little Edo', 'Historic Town', 'Street Snacks', 'Kimono'],
+    lat: 35.9251, lng: 139.4856,
   },
 ];
 
@@ -828,3 +942,270 @@ export const INITIAL_WAYFINDER_DECISIONS: WayfinderDecision[] = [
     impactTh: 'ความสะดวกในการเดินทางกลับโรงแรมตอนดึกและราคาต่อคืน (2,500 - 6,000 บาท/คืน)',
   },
 ];
+
+export const SEED_COMMUNITY_TRIPS: CommunityTripPlan[] = [
+  {
+    id: 'trip-my-tokyo-adventure',
+    trip_title: 'My Tokyo Adventure',
+    creator_name: 'JojoTraveler',
+    target_year: 2027,
+    target_month: 11,
+    duration_days: 7,
+    destinations: ['ชิบูย่า สกาย', 'ทีมแล็บ แพลเน็ตส์', 'วัดเซ็นโซจิ อาซากุสะ', 'ภูเขาไฟฟูจิ & ทะเลสาบคาวากุจิโกะ', 'คามาคุระ พระใหญ่ไดบุตสึ & เกาะเอโนชิมะ'],
+    selected_flight: 'Thai Airways (TG676)',
+    selected_hotel_id: 'hotel-gracery-shinjuku',
+    hotel_area: 'Shinjuku',
+    estimated_budget_thb: 42500,
+    custom_notes: 'ตะลุยแลนด์มาร์คไฮไลท์โตเกียว + เดย์ทริปฟูจิ คาวากุจิโกะ และเมืองเก่าริมทะเลคามาคุระ พักย่านชินจูกุเดินทางสะดวก',
+    tags: ['7 วัน', 'Shinjuku', 'Mt Fuji', 'Tokyo Highlights'],
+    created_at: '2026-08-30T14:20:00Z',
+    likes_count: 52,
+  },
+];
+
+export const HOTEL_OPTIONS: HotelOption[] = [
+  // Shinjuku
+  {
+    id: 'hotel-gracery-shinjuku',
+    nameTh: 'โรงแรมก๊อดซิลล่า โฮเทล เกรเซอรี่ ชินจูกุ',
+    nameEn: 'Hotel Gracery Shinjuku (Godzilla Hotel)',
+    area: 'Shinjuku',
+    areaTh: 'ชินจูกุ (ศูนย์กลางรถไฟ & ไนท์ไลฟ์)',
+    starRating: 4,
+    ratingScore: 8.8,
+    pricePerNightTHB: 3800,
+    pricePerNightJPY: 16200,
+    nearestStation: 'JR Shinjuku Station',
+    walkMinutesToStation: 4,
+    highlights: ['หัวก๊อดซิลล่าแลนด์มาร์ก', 'เดินทางไปฟูจิและรอบโตเกียวสะดวกสุด', 'แหล่งของกิน 24 ชม.'],
+    tagBadge: 'คุ้มค่าที่สุด',
+    imageUrl: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Agoda Best Deal (ลด 28%)',
+    isRecommendedBestValue: true,
+    lat: 35.6938, lng: 139.7034,
+  },
+  {
+    id: 'hotel-apa-higashi-shinjuku',
+    nameTh: 'เอพีเอ โฮเทล ฮิกาชิ ชินจูกุ',
+    nameEn: 'APA Hotel Higashi-Shinjuku Ekimae',
+    area: 'Shinjuku',
+    areaTh: 'ชินจูกุ',
+    starRating: 3,
+    ratingScore: 8.2,
+    pricePerNightTHB: 2350,
+    pricePerNightJPY: 10000,
+    nearestStation: 'Higashi-Shinjuku Station (Oedo Line)',
+    walkMinutesToStation: 1,
+    highlights: ['ติดสถานีรถไฟใต้ดิน 1 นาที', 'ราคาประหยัดที่สุดในโซนชินจูกุ', 'มีสิ่งอำนวยความสะดวกครบ'],
+    tagBadge: 'ใกล้รถไฟ 1 นาที',
+    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Booking.com (Flash Sale)',
+    lat: 35.6977, lng: 139.7091,
+  },
+  {
+    id: 'hotel-keio-plaza',
+    nameTh: 'เคโอ พลาซ่า โฮเทล โตเกียว (พรีเมียม)',
+    nameEn: 'Keio Plaza Hotel Tokyo',
+    area: 'Shinjuku',
+    areaTh: 'ชินจูกุ',
+    starRating: 5,
+    ratingScore: 9.1,
+    pricePerNightTHB: 6500,
+    pricePerNightJPY: 27600,
+    nearestStation: 'JR Shinjuku Station (West Exit)',
+    walkMinutesToStation: 5,
+    highlights: ['มีรถบัสดิสนีย์รับส่งฟรี (Tokyo Disney Resort Good Neighbor)', 'ห้องพักกว้าง วิวตึกระฟ้าชินจูกุ', 'บริการ 5 ดาว'],
+    tagBadge: 'พรีเมียม',
+    imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Trip.com Exclusive',
+    lat: 35.6906, lng: 139.6950,
+  },
+
+  // Ueno
+  {
+    id: 'hotel-apa-keisei-ueno',
+    nameTh: 'เอพีเอ โฮเทล เคเซ อุเอโนะ เอกิมาเอะ',
+    nameEn: 'APA Hotel Keisei Ueno-Ekimae',
+    area: 'Ueno',
+    areaTh: 'อุเอโนะ (เดินทางไปสนามบินนาริตะสะดวกสุด)',
+    starRating: 3,
+    ratingScore: 8.6,
+    pricePerNightTHB: 2450,
+    pricePerNightJPY: 10400,
+    nearestStation: 'Keisei Ueno Station (Skyliner 40 นาทีถึงนาริตะ)',
+    walkMinutesToStation: 1,
+    highlights: ['ตรงข้ามสถานี Skyliner ไปนาริตะ 41 นาที', 'ติดสวนอุเอโนะและตลาดอะเมโยโกะ', 'ราคาดีมาก'],
+    tagBadge: 'คุ้มค่าที่สุด',
+    imageUrl: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Agoda Flash Deal',
+    isRecommendedBestValue: true,
+    lat: 35.7141, lng: 139.7774,
+  },
+  {
+    id: 'hotel-mimaru-ueno',
+    nameTh: 'มิมารุ โตเกียว อุเอโนะ นอร์ท (สำหรับครอบครัว)',
+    nameEn: 'MIMARU Tokyo Ueno North',
+    area: 'Ueno',
+    areaTh: 'อุเอโนะ',
+    starRating: 4,
+    ratingScore: 9.3,
+    pricePerNightTHB: 5800,
+    pricePerNightJPY: 24700,
+    nearestStation: 'JR Ueno Station',
+    walkMinutesToStation: 4,
+    highlights: ['ห้องพักสไตล์อพาร์ตเมนต์มีครัว', 'พักได้ 4-6 คน เหมาะกับครอบครัวและกลุ่มเพื่อน', 'มีห้องธีมโปเกมอน'],
+    tagBadge: 'พรีเมียม',
+    imageUrl: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Expedia Top Pick',
+    lat: 35.7175, lng: 139.7742,
+  },
+
+  // Asakusa
+  {
+    id: 'hotel-richmond-asakusa',
+    nameTh: 'ริชมอนด์ โฮเทล พรีเมียร์ อาซากุสะ',
+    nameEn: 'Richmond Hotel Premier Asakusa',
+    area: 'Asakusa',
+    areaTh: 'อาซากุสะ (วัดเซ็นโซจิ & โตเกียวสกายทรี)',
+    starRating: 4,
+    ratingScore: 9.0,
+    pricePerNightTHB: 3300,
+    pricePerNightJPY: 14000,
+    nearestStation: 'Asakusa Station (Tsukuba Express / Ginza Line)',
+    walkMinutesToStation: 3,
+    highlights: ['มองเห็นวัดเซ็นโซจิและ Tokyo Skytree', 'อาหารเช้าบุฟเฟต์ยอดเยี่ยม', 'บรรยากาศญี่ปุ่นดั้งเดิม'],
+    tagBadge: 'คุ้มค่าที่สุด',
+    imageUrl: 'https://images.unsplash.com/photo-1549294413-26f195200c16?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Agoda Direct Partner',
+    lat: 35.7100, lng: 139.7947,
+  },
+
+  // Shibuya
+  {
+    id: 'hotel-shibuya-stream',
+    nameTh: 'ชิบูย่า สตรีม เอ็กเซล โฮเทล โทคิว',
+    nameEn: 'Shibuya Stream Excel Hotel Tokyu',
+    area: 'Shibuya',
+    areaTh: 'ชิบูย่า (ฮาราจูกุ & แหล่งแฟชั่น)',
+    starRating: 4,
+    ratingScore: 9.1,
+    pricePerNightTHB: 5600,
+    pricePerNightJPY: 23800,
+    nearestStation: 'JR Shibuya Station (เชื่อมต่อตรงเข้าตึก)',
+    walkMinutesToStation: 1,
+    highlights: ['เชื่อมตรงกับทางออก Shibuya Stream', 'เดินไป Shibuya Sky และห้าแยก 2 นาที', 'ดีไซน์ล้ำสมัย'],
+    tagBadge: 'ช้อปปิ้งสะดวก',
+    imageUrl: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Booking.com Premier',
+    lat: 35.6580, lng: 139.7026,
+  },
+
+  // Ginza
+  {
+    id: 'hotel-daiwa-ginza',
+    nameTh: 'ไดวะ รอยเนต โฮเทล กินซ่า พรีเมียร์',
+    nameEn: 'Daiwa Roynet Hotel Ginza Premier',
+    area: 'Ginza',
+    areaTh: 'กินซ่า (ช้อปปิ้งหรู & ใกล้โตเกียวสเตชั่น)',
+    starRating: 4,
+    ratingScore: 8.9,
+    pricePerNightTHB: 4200,
+    pricePerNightJPY: 17800,
+    nearestStation: 'Ginza-itchome Station (Yurakucho Line)',
+    walkMinutesToStation: 1,
+    highlights: ['ติดสถานีรถไฟใต้ดินกินซ่า', 'เดินไปถนนแบรนด์เนมและตลาดปลาซึกิจิได้', 'ห้องพักสะอาด เตียงนุ่ม'],
+    tagBadge: 'ช้อปปิ้งสะดวก',
+    imageUrl: 'https://images.unsplash.com/photo-1568084680786-a84f91d1153c?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Agoda Super Deal',
+    lat: 35.6717, lng: 139.7649,
+  },
+
+  // Fuji / Kawaguchiko
+  {
+    id: 'hotel-fuji-view',
+    nameTh: 'ฟูจิ วิว โฮเทล (ออนเซ็นวิวภูเขาไฟฟูจิ)',
+    nameEn: 'Fuji View Hotel Kawaguchiko',
+    area: 'Kawaguchiko',
+    areaTh: 'คาวากุจิโกะ (ทะเลสาบ & ฟูจิ)',
+    starRating: 4,
+    ratingScore: 9.2,
+    pricePerNightTHB: 7800,
+    pricePerNightJPY: 33200,
+    nearestStation: 'Kawaguchiko Station (มีรถรับส่งฟรี)',
+    walkMinutesToStation: 10,
+    highlights: ['แช่ออนเซ็นธรรมชาติมองเห็นฟูจิเต็มตา', 'สวนญี่ปุ่นริมทะเลสาบคาวากุจิโกะ', 'อาหารชุดไคเซกิ'],
+    tagBadge: 'วิวฟูจิสวย',
+    imageUrl: 'https://images.unsplash.com/photo-1578637387939-43c525550085?w=600&auto=format&fit=crop&q=80',
+    bookingSource: 'Japanican Best Rate',
+    lat: 35.5116, lng: 138.7600,
+  },
+];
+
+// Transit estimation matrix from Hotel Area to specific spots
+export function calculateTransitFromHotel(hotelArea: string, spotArea: string, spotName: string): {
+  minutes: number;
+  trainLine: string;
+  distanceKm: number;
+  convenienceScore: number;
+} {
+  const normHotel = (hotelArea || 'Shinjuku').toLowerCase();
+  const normSpot = (spotArea || '').toLowerCase();
+  const normName = (spotName || '').toLowerCase();
+
+  // Kawaguchiko / Mt Fuji
+  if (normSpot.includes('fuji') || normName.includes('ฟูจิ') || normName.includes('คาวากุจิ')) {
+    if (normHotel.includes('shinjuku')) {
+      return { minutes: 105, trainLine: 'JR Fuji Excursion (Direct รถไฟด่วนตรงจากชินจูกุ)', distanceKm: 112, convenienceScore: 95 };
+    }
+    return { minutes: 130, trainLine: 'JR Yamanote ต่อรถไฟด่วน Fuji Excursion ที่ Shinjuku', distanceKm: 124, convenienceScore: 85 };
+  }
+
+  // DisneySea / Maihama
+  if (normName.includes('ดิสนีย์') || normSpot.includes('maihama') || normSpot.includes('disney')) {
+    if (normHotel.includes('ueno') || normHotel.includes('ginza')) {
+      return { minutes: 35, trainLine: 'Tokyo Metro Hibiya Line -> JR Keiyo Line to Maihama', distanceKm: 18, convenienceScore: 90 };
+    }
+    return { minutes: 45, trainLine: 'JR Chuo Rapid -> JR Keiyo Line to Maihama', distanceKm: 26, convenienceScore: 82 };
+  }
+
+  // Kamakura & Enoshima
+  if (normName.includes('คามาคุระ') || normSpot.includes('kamakura')) {
+    if (normHotel.includes('shinjuku') || normHotel.includes('shibuya')) {
+      return { minutes: 55, trainLine: 'JR Shonan-Shinjuku Line (Direct รถไฟตรง)', distanceKm: 54, convenienceScore: 94 };
+    }
+    return { minutes: 68, trainLine: 'JR Ueno-Tokyo Line -> JR Yokosuka Line', distanceKm: 62, convenienceScore: 86 };
+  }
+
+  // Shibuya
+  if (normSpot.includes('shibuya') || normName.includes('ชิบูย่า')) {
+    if (normHotel.includes('shibuya')) return { minutes: 2, trainLine: 'เดินถึง (Walking 2-5 นาที)', distanceKm: 0.4, convenienceScore: 100 };
+    if (normHotel.includes('shinjuku')) return { minutes: 7, trainLine: 'JR Yamanote Line (3 สถานี)', distanceKm: 3.5, convenienceScore: 98 };
+    if (normHotel.includes('ueno')) return { minutes: 25, trainLine: 'Tokyo Metro Ginza Line (Direct)', distanceKm: 11, convenienceScore: 88 };
+    return { minutes: 16, trainLine: 'Tokyo Metro Ginza Line / Hanzomon Line', distanceKm: 7, convenienceScore: 92 };
+  }
+
+  // Asakusa / Sensoji
+  if (normSpot.includes('asakusa') || normName.includes('เซ็นโซจิ')) {
+    if (normHotel.includes('asakusa')) return { minutes: 3, trainLine: 'เดินถึง (Walking 3 นาที)', distanceKm: 0.3, convenienceScore: 100 };
+    if (normHotel.includes('ueno')) return { minutes: 5, trainLine: 'Tokyo Metro Ginza Line (3 สถานี)', distanceKm: 2.2, convenienceScore: 98 };
+    if (normHotel.includes('ginza')) return { minutes: 14, trainLine: 'Tokyo Metro Ginza Line (Direct)', distanceKm: 5.5, convenienceScore: 92 };
+    return { minutes: 24, trainLine: 'Toei Shinjuku Line -> Toei Asakusa Line', distanceKm: 9.8, convenienceScore: 85 };
+  }
+
+  // Shinjuku
+  if (normSpot.includes('shinjuku') || normName.includes('ชินจูกุ')) {
+    if (normHotel.includes('shinjuku')) return { minutes: 3, trainLine: 'เดินถึง (Walking 3 นาที)', distanceKm: 0.5, convenienceScore: 100 };
+    if (normHotel.includes('shibuya')) return { minutes: 7, trainLine: 'JR Yamanote Line', distanceKm: 3.5, convenienceScore: 98 };
+    return { minutes: 20, trainLine: 'Tokyo Metro Marunouchi Line (Direct)', distanceKm: 8.5, convenienceScore: 90 };
+  }
+
+  // teamLab Planets (Toyosu)
+  if (normName.includes('teamlab') || normSpot.includes('toyosu')) {
+    if (normHotel.includes('ginza')) return { minutes: 14, trainLine: 'Tokyo Metro Yurakucho Line to Toyosu', distanceKm: 4.8, convenienceScore: 94 };
+    if (normHotel.includes('ueno')) return { minutes: 24, trainLine: 'JR Yamanote -> Yurakucho Line', distanceKm: 8.2, convenienceScore: 88 };
+    return { minutes: 28, trainLine: 'Toei Shinjuku Line -> Yurakucho Line to Toyosu', distanceKm: 12, convenienceScore: 85 };
+  }
+
+  // Default within Tokyo
+  return { minutes: 18, trainLine: 'JR Yamanote Line / Tokyo Metro', distanceKm: 6.5, convenienceScore: 90 };
+}

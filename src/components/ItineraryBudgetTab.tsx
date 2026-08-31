@@ -5,17 +5,12 @@ import { Attraction, FlightOption, Currency, MonthData } from '@/types/travel';
 import { JPY_TO_THB_RATE } from '@/data/mockData';
 import { 
   DollarSign, 
-  Calendar, 
   MapPin, 
-  Sparkles, 
+  Receipt, 
   Sliders, 
   Layers, 
-  Utensils, 
-  Hotel, 
-  Plane, 
-  ShoppingBag, 
-  Compass, 
   Clock,
+  Sparkles,
   ArrowRight,
   TrendingDown
 } from 'lucide-react';
@@ -37,7 +32,6 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
   tripDurationDays,
   setTripDurationDays,
 }) => {
-  // Budget State
   const [hotelCostPerNightTHB, setHotelCostPerNightTHB] = useState<number>(3200);
   const [dailyFoodJPY, setDailyFoodJPY] = useState<number>(4500);
   const [shoppingJPY, setShoppingJPY] = useState<number>(30000);
@@ -45,29 +39,20 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
 
   const flightCostTHB = selectedFlight ? selectedFlight.basePriceTHB : 18500;
   const hotelTotalTHB = hotelCostPerNightTHB * Math.max(1, tripDurationDays - 1);
-  const foodTotalJPY = dailyFoodJPY * tripDurationDays;
-  const foodTotalTHB = Math.round(foodTotalJPY * JPY_TO_THB_RATE);
-  const attractionCostJPY = wishlistAttractions.reduce((sum, a) => sum + a.priceJPY, 0);
-  const attractionCostTHB = Math.round(attractionCostJPY * JPY_TO_THB_RATE);
+  const foodTotalTHB = Math.round(dailyFoodJPY * tripDurationDays * JPY_TO_THB_RATE);
+  const attractionCostTHB = Math.round(wishlistAttractions.reduce((s, a) => s + a.priceJPY, 0) * JPY_TO_THB_RATE);
   const transitTotalTHB = Math.round(transitPassJPY * JPY_TO_THB_RATE);
   const shoppingTotalTHB = Math.round(shoppingJPY * JPY_TO_THB_RATE);
 
-  const grandTotalTHB =
-    flightCostTHB + hotelTotalTHB + foodTotalTHB + attractionCostTHB + transitTotalTHB + shoppingTotalTHB;
+  const grandTotalTHB = flightCostTHB + hotelTotalTHB + foodTotalTHB + attractionCostTHB + transitTotalTHB + shoppingTotalTHB;
   const grandTotalJPY = Math.round(grandTotalTHB / JPY_TO_THB_RATE);
 
   const formatCost = (thb: number) => {
-    if (currency === 'THB') {
-      return `฿${thb.toLocaleString()} THB`;
-    }
-    const jpy = Math.round(thb / JPY_TO_THB_RATE);
-    return `¥${jpy.toLocaleString()} JPY`;
+    if (currency === 'THB') return `฿${thb.toLocaleString()} THB`;
+    return `¥${Math.round(thb / JPY_TO_THB_RATE).toLocaleString()} JPY`;
   };
 
-  // Generate Sample Day-by-Day itinerary using wishlist spots
   const daysArray = Array.from({ length: tripDurationDays }, (_, i) => i + 1);
-
-  // Group wishlist attractions into days
   const spotsPerDay = 2;
   const getDayAttractions = (dayIndex: number) => {
     const start = (dayIndex - 1) * spotsPerDay;
@@ -75,60 +60,64 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      {/* Budget Summary Card */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Ledger Card */}
+      <div className="bento-card">
+        <div className="bento-card-kanji-bg">予算</div>
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span className="badge badge-amber">
-                <DollarSign size={12} /> Live Budget Estimator 2027
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <span className="editorial-tag tag-gold">
+                <Receipt size={11} /> EXPEDITION FINANCIAL LEDGER & CALENDAR
               </span>
-              <span className="badge badge-sakura">{selectedMonth.nameTh} ({tripDurationDays} วัน)</span>
+              <span className="editorial-tag tag-cyan">{selectedMonth.nameTh} // {tripDurationDays} DAYS</span>
             </div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
-              ประมาณการงบประมาณทริปญี่ปุ่น & แพลนรายวัน
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px', marginBottom: '8px' }}>
+              ประมาณการงบประมาณ & แพลนเส้นทางรายวัน (Budget & Itinerary)
             </h2>
-            <p style={{ fontSize: '14px', color: '#94a3b8', maxWidth: '750px', lineHeight: '1.5' }}>
-              ปรับแต่งงบประมาณตามสไตล์การเที่ยวของคุณ ไม่ว่าจะเป็นค่าตั๋วเครื่องบิน โรงแรม อาหาร บัตรกิจกรรม และช้อปปิ้ง
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '720px', lineHeight: '1.6' }}>
+              ปรับแต่งงบประมาณตามรูปแบบทริปของคุณ พร้อมคำนวณการกระจายตัวของค่าใช้จ่ายแบบเรียลไทม์
             </p>
           </div>
 
           <div
             style={{
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              borderRadius: '16px',
+              background: 'var(--bg-surface-raised)',
+              border: '1px solid var(--tokyo-gold)',
+              borderRadius: 'var(--radius-md)',
               padding: '16px 24px',
               textAlign: 'right',
+              boxShadow: '0 0 20px rgba(234, 179, 8, 0.2)',
             }}
           >
-            <div style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 600 }}>งบประมาณรวมโดยประมาณ / คน</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#fff' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--tokyo-gold)' }}>
+              TOTAL ESTIMATE / PAX
+            </div>
+            <div style={{ fontSize: '28px', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-mono)' }}>
               {formatCost(grandTotalTHB)}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-              เฉลี่ยวันละ {formatCost(Math.round(grandTotalTHB / tripDurationDays))} / คน
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
+              PACE: {formatCost(Math.round(grandTotalTHB / tripDurationDays))} / DAY
             </div>
           </div>
         </div>
 
-        {/* Sliders & Customization Grid */}
+        {/* Sliders Grid */}
         <div
           style={{
             marginTop: '24px',
             paddingTop: '20px',
-            borderTop: '1px solid var(--border-subtle)',
+            borderTop: '1px solid var(--border-hairline)',
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '16px',
           }}
         >
-          {/* Trip Duration Slider */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-              <span style={{ color: '#cbd5e1' }}>ระยะเวลาทริป:</span>
-              <strong style={{ color: '#38bdf8' }}>{tripDurationDays} วัน</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>DURATION:</span>
+              <strong style={{ color: 'var(--fuji-cyan)' }}>{tripDurationDays} DAYS</strong>
             </div>
             <input
               type="range"
@@ -136,15 +125,14 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
               max={14}
               value={tripDurationDays}
               onChange={(e) => setTripDurationDays(Number(e.target.value))}
-              style={{ width: '100%', accentColor: 'var(--accent-cyan)' }}
+              style={{ width: '100%', accentColor: 'var(--fuji-cyan)' }}
             />
           </div>
 
-          {/* Hotel Cost Slider */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-              <span style={{ color: '#cbd5e1' }}>ค่าโรงแรม/คืน:</span>
-              <strong style={{ color: '#fb7185' }}>฿{hotelCostPerNightTHB.toLocaleString()}</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>HOTEL/NIGHT:</span>
+              <strong style={{ color: 'var(--vermilion)' }}>฿{hotelCostPerNightTHB.toLocaleString()}</strong>
             </div>
             <input
               type="range"
@@ -153,15 +141,14 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
               step={100}
               value={hotelCostPerNightTHB}
               onChange={(e) => setHotelCostPerNightTHB(Number(e.target.value))}
-              style={{ width: '100%', accentColor: 'var(--accent-pink)' }}
+              style={{ width: '100%', accentColor: 'var(--vermilion)' }}
             />
           </div>
 
-          {/* Daily Food Slider */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-              <span style={{ color: '#cbd5e1' }}>ค่าอาหาร/วัน:</span>
-              <strong style={{ color: '#34d399' }}>¥{dailyFoodJPY.toLocaleString()} (฿{Math.round(dailyFoodJPY * JPY_TO_THB_RATE)})</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>FOOD/DAY:</span>
+              <strong style={{ color: 'var(--matcha-emerald)' }}>¥{dailyFoodJPY.toLocaleString()}</strong>
             </div>
             <input
               type="range"
@@ -170,15 +157,14 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
               step={500}
               value={dailyFoodJPY}
               onChange={(e) => setDailyFoodJPY(Number(e.target.value))}
-              style={{ width: '100%', accentColor: 'var(--accent-emerald)' }}
+              style={{ width: '100%', accentColor: 'var(--matcha-emerald)' }}
             />
           </div>
 
-          {/* Shopping Budget Slider */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-              <span style={{ color: '#cbd5e1' }}>งบช้อปปิ้ง/ของฝาก:</span>
-              <strong style={{ color: '#fbbf24' }}>฿{shoppingTotalTHB.toLocaleString()}</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>SHOPPING:</span>
+              <strong style={{ color: 'var(--tokyo-gold)' }}>฿{shoppingTotalTHB.toLocaleString()}</strong>
             </div>
             <input
               type="range"
@@ -187,64 +173,63 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
               step={2000}
               value={shoppingJPY}
               onChange={(e) => setShoppingJPY(Number(e.target.value))}
-              style={{ width: '100%', accentColor: 'var(--accent-amber)' }}
+              style={{ width: '100%', accentColor: 'var(--tokyo-gold)' }}
             />
           </div>
         </div>
 
-        {/* Cost Breakdown Progress Bar */}
+        {/* Ledger Breakdown Bar */}
         <div style={{ marginTop: '24px' }}>
-          <div style={{ display: 'flex', height: '10px', borderRadius: '5px', overflow: 'hidden', marginBottom: '10px' }}>
-            <div style={{ width: `${(flightCostTHB / grandTotalTHB) * 100}%`, background: 'var(--accent-cyan)' }} title="ตั๋วเครื่องบิน" />
-            <div style={{ width: `${(hotelTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--accent-pink)' }} title="โรงแรมที่พัก" />
-            <div style={{ width: `${(foodTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--accent-emerald)' }} title="อาหารและเครื่องดื่ม" />
-            <div style={{ width: `${(transitTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--accent-purple)' }} title="การเดินทางและพาส" />
-            <div style={{ width: `${(attractionCostTHB / grandTotalTHB) * 100}%`, background: '#3b82f6' }} title="บัตรเข้าสถานที่" />
-            <div style={{ width: `${(shoppingTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--accent-amber)' }} title="ช้อปปิ้ง" />
+          <div style={{ display: 'flex', height: '8px', borderRadius: 'var(--radius-xs)', overflow: 'hidden', marginBottom: '12px' }}>
+            <div style={{ width: `${(flightCostTHB / grandTotalTHB) * 100}%`, background: 'var(--fuji-cyan)' }} />
+            <div style={{ width: `${(hotelTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--vermilion)' }} />
+            <div style={{ width: `${(foodTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--matcha-emerald)' }} />
+            <div style={{ width: `${(transitTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--lavender)' }} />
+            <div style={{ width: `${(attractionCostTHB / grandTotalTHB) * 100}%`, background: '#3b82f6' }} />
+            <div style={{ width: `${(shoppingTotalTHB / grandTotalTHB) * 100}%`, background: 'var(--tokyo-gold)' }} />
           </div>
 
-          {/* Legend */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', fontSize: '12px' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#cbd5e1' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-cyan)' }} />
-              ตั๋วเครื่องบิน: {formatCost(flightCostTHB)}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--fuji-cyan)' }} />
+              FLIGHT: {formatCost(flightCostTHB)}
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#cbd5e1' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-pink)' }} />
-              โรงแรม ({tripDurationDays - 1} คืน): {formatCost(hotelTotalTHB)}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--vermilion)' }} />
+              HOTEL ({tripDurationDays - 1}N): {formatCost(hotelTotalTHB)}
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#cbd5e1' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-emerald)' }} />
-              อาหาร ({tripDurationDays} วัน): {formatCost(foodTotalTHB)}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--matcha-emerald)' }} />
+              FOOD: {formatCost(foodTotalTHB)}
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#cbd5e1' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-purple)' }} />
-              การเดินทาง/พาส: {formatCost(transitTotalTHB)}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--lavender)' }} />
+              TRANSIT: {formatCost(transitTotalTHB)}
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#cbd5e1' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3b82f6' }} />
-              บัตรเข้าสถานที่: {formatCost(attractionCostTHB)}
+              ACTIVITIES: {formatCost(attractionCostTHB)}
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#cbd5e1' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-amber)' }} />
-              ช้อปปิ้ง/ของฝาก: {formatCost(shoppingTotalTHB)}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--tokyo-gold)' }} />
+              SHOPPING: {formatCost(shoppingTotalTHB)}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Day-by-Day Itinerary Preview */}
+      {/* Day-by-Day Outline */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div>
-            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
               โครงสร้างแผนการเดินทางรายวัน ({tripDurationDays} Days Route Outline)
             </h3>
-            <p style={{ fontSize: '13px', color: '#94a3b8' }}>
-              จัดกลุ่มสถานที่จาก Wishlist ลงในแต่ละวันแบบอัตโนมัติเพื่อให้เห็นภาพรวมเส้นทาง
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+              จัดกลุ่มสถานที่จาก Wishlist ลงในแต่ละวันแบบอัตโนมัติ
             </p>
           </div>
-          <span className="badge badge-cyan">{wishlistAttractions.length} สถานที่ในแผน</span>
+          <span className="editorial-tag tag-cyan">{wishlistAttractions.length} PLACES IN WISHLIST</span>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -254,7 +239,7 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
             return (
               <div
                 key={dayNum}
-                className="card"
+                className="bento-card"
                 style={{
                   padding: '16px 20px',
                   display: 'flex',
@@ -264,24 +249,24 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
                   gap: '14px',
                 }}
               >
-                {/* Day Badge & Theme */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: '220px' }}>
                   <div
                     style={{
                       width: '42px',
                       height: '42px',
-                      borderRadius: '10px',
-                      background: 'rgba(244, 63, 94, 0.15)',
-                      border: '1px solid rgba(244, 63, 94, 0.3)',
-                      color: '#fb7185',
+                      borderRadius: 'var(--radius-xs)',
+                      background: 'var(--bg-surface-raised)',
+                      border: '1px solid var(--vermilion)',
+                      color: 'var(--vermilion)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      fontFamily: 'var(--font-mono)',
                       fontWeight: 800,
                       fontSize: '15px',
                     }}
                   >
-                    D{dayNum}
+                    D{String(dayNum).padStart(2, '0')}
                   </div>
                   <div>
                     <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#fff' }}>
@@ -291,15 +276,14 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
                         ? `Day ${dayNum}: ช้อปปิ้งส่งท้าย & เดินทางไปสนามบิน`
                         : `Day ${dayNum}: สำรวจไฮไลท์เมือง & อาหาร`}
                     </h4>
-                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {daySpots.length > 0
                         ? `มี ${daySpots.length} จุดหมายหลัก`
-                        : 'เวลาว่างสำหรับเดินเล่นคาเฟ่และช้อปปิ้ง'}
+                        : 'เวลาอิสระสำหรับเดินเล่นและคาเฟ่'}
                     </span>
                   </div>
                 </div>
 
-                {/* Spots in Day */}
                 <div style={{ display: 'flex', gap: '10px', flex: 1, flexWrap: 'wrap' }}>
                   {daySpots.length > 0 ? (
                     daySpots.map((spot) => (
@@ -308,27 +292,26 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '8px',
+                          gap: '6px',
                           padding: '6px 12px',
-                          background: 'rgba(255, 255, 255, 0.04)',
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          borderRadius: '8px',
+                          background: 'var(--bg-surface-raised)',
+                          border: '1px solid var(--border-hairline)',
+                          borderRadius: 'var(--radius-xs)',
                         }}
                       >
-                        <MapPin size={14} color="#38bdf8" />
+                        <MapPin size={13} color="var(--fuji-cyan)" />
                         <span style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>{spot.nameTh.split('(')[0]}</span>
-                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>({spot.area})</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>({spot.area})</span>
                       </div>
                     ))
                   ) : (
-                    <div style={{ fontSize: '12.5px', color: '#64748b', fontStyle: 'italic' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
                       เพิ่มสถานที่จากหน้า Attractions เพื่อจัดลงในวันนี้
                     </div>
                   )}
                 </div>
 
-                {/* Day Cost estimate */}
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#34d399' }}>
+                <div style={{ fontSize: '13.5px', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--matcha-emerald)' }}>
                   ≈ {formatCost(Math.round(grandTotalTHB / tripDurationDays))}
                 </div>
               </div>

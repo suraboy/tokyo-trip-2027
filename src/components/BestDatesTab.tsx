@@ -11,10 +11,9 @@ import {
   Check, 
   Award, 
   Sparkles, 
-  Info, 
-  Flame, 
-  CalendarDays,
-  Thermometer
+  Thermometer,
+  Calendar,
+  ArrowRight
 } from 'lucide-react';
 
 interface BestDatesTabProps {
@@ -39,182 +38,170 @@ export const BestDatesTab: React.FC<BestDatesTabProps> = ({
     return true;
   });
 
-  const getScoreColor = (score: number) => {
-    if (score >= 93) return '#10b981'; // Emerald
-    if (score >= 85) return '#38bdf8'; // Sky blue
-    if (score >= 75) return '#fbbf24'; // Amber
-    return '#94a3b8';
-  };
-
-  const renderDots = (level: number, color: string) => {
-    return (
-      <div style={{ display: 'flex', gap: '3px' }}>
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              backgroundColor: i <= level ? color : 'rgba(255, 255, 255, 0.1)',
-            }}
-          />
-        ))}
-      </div>
-    );
+  const getScoreTagClass = (score: number) => {
+    if (score >= 94) return 'tag-green';
+    if (score >= 88) return 'tag-cyan';
+    if (score >= 80) return 'tag-gold';
+    return 'tag-purple';
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      {/* Header Info */}
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Editorial Header Card */}
+      <div className="bento-card">
+        <div className="bento-card-kanji-bg">季節</div>
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span className="badge badge-sakura">
-                <Sparkles size={12} /> Smart Seasonality Engine 2027
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <span className="editorial-tag tag-red">
+                <Sparkles size={11} /> 12-MONTH CLIMATE & SEASONALITY MATRIX
               </span>
-              <span className="badge badge-cyan">โตเกียว & ภูมิภาคคันโต</span>
+              <span className="editorial-tag tag-cyan">TOKYO & KANTO REGION</span>
             </div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px', marginBottom: '8px' }}>
               หาวันและเดือนที่ดีที่สุดสำหรับเที่ยวญี่ปุ่น (Best Dates Finder)
             </h2>
-            <p style={{ fontSize: '14px', color: '#94a3b8', maxWidth: '750px', lineHeight: '1.5' }}>
-              วิเคราะห์สภาพอากาศ อุณหภูมิเฉลี่ย ปริมาณฝน ความหนาแน่นของนักท่องเที่ยว และความคุ้มค่าของราคา เพื่อเลือกช่วงเวลาที่ตรงกับสไตล์การเที่ยวของคุณมากที่สุด
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '720px', lineHeight: '1.6' }}>
+              วิเคราะห์ดัชนีสภาพอากาศ อุณหภูมิเฉลี่ย ปริมาณน้ำฝน ความหนาแน่นของนักท่องเที่ยว และช่วงเวลาซากุระบาน/ใบไม้เปลี่ยนสี
             </p>
           </div>
 
+          {/* Current Selection Callout */}
           <div
             style={{
-              background: 'rgba(244, 63, 94, 0.1)',
-              border: '1px solid rgba(244, 63, 94, 0.3)',
-              borderRadius: '12px',
-              padding: '12px 18px',
+              background: 'var(--bg-surface-raised)',
+              border: '1px solid var(--vermilion)',
+              borderRadius: 'var(--radius-md)',
+              padding: '14px 20px',
               textAlign: 'right',
+              boxShadow: '0 0 20px var(--vermilion-glow)',
             }}
           >
-            <div style={{ fontSize: '11px', color: '#fb7185' }}>เดือนที่คุณเลือกปัจจุบัน</div>
-            <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--vermilion)' }}>
+              CURRENT TARGET MONTH
+            </div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>
               {selectedMonth.nameTh} ({selectedMonth.nameEn})
             </div>
-            <div style={{ fontSize: '12px', color: '#38bdf8' }}>
-              คะแนนความน่าเที่ยว: {selectedMonth.overallScore} / 100
+            <div style={{ fontSize: '12px', color: 'var(--fuji-cyan)', fontFamily: 'var(--font-mono)' }}>
+              SCORE: {selectedMonth.overallScore} / 100
             </div>
           </div>
         </div>
 
-        {/* Top 3 Recommended Time Windows Callout */}
+        {/* Top 3 Benchmark Windows */}
         <div
           style={{
-            marginTop: '20px',
+            marginTop: '24px',
             paddingTop: '20px',
-            borderTop: '1px solid var(--border-subtle)',
+            borderTop: '1px solid var(--border-hairline)',
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '14px',
           }}
         >
-          {/* Top 1 */}
+          {/* Top 1: Nov */}
           <div
             onClick={() => onSelectMonth(MONTHS_DATA[10])}
             style={{
-              padding: '14px',
-              background: selectedMonth.month === 11 ? 'rgba(244, 63, 94, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-              border: selectedMonth.month === 11 ? '1px solid var(--accent-pink)' : '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '12px',
+              padding: '16px',
+              background: selectedMonth.month === 11 ? 'var(--bg-surface-active)' : 'var(--bg-surface-raised)',
+              border: selectedMonth.month === 11 ? '1px solid var(--vermilion)' : '1px solid var(--border-hairline)',
+              borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span className="badge badge-sakura" style={{ fontSize: '11px' }}>
-                <Award size={12} /> อันดับ 1 ยอดนิยม
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <span className="editorial-tag tag-red" style={{ fontSize: '10px' }}>
+                <Award size={11} /> อันดับ 1 ยอดนิยม
               </span>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981' }}>Score 97/100</span>
+              <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#34d399' }}>97/100</span>
             </div>
-            <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: '4px 0' }}>
+            <div style={{ fontSize: '16px', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>
               พฤศจิกายน (พ.ย.) • ใบไม้เปลี่ยนสี
             </div>
-            <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
-              ใบเมเปิ้ลสีแดงพีคที่ฟูจิ & ถนนแปะก๊วยสีทองในโตเกียว ฟ้าใส ไร้ฝน อากาศ 9-17°C
+            <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: '1.45' }}>
+              ใบเมเปิ้ลสีแดงพีคที่ฟูจิ & แปะก๊วยสีทองโตเกียว ฝนน้อยมาก ฟ้าใส 9-17°C
             </p>
           </div>
 
-          {/* Top 2 */}
+          {/* Top 2: May */}
           <div
             onClick={() => onSelectMonth(MONTHS_DATA[4])}
             style={{
-              padding: '14px',
-              background: selectedMonth.month === 5 ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-              border: selectedMonth.month === 5 ? '1px solid var(--accent-cyan)' : '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '12px',
+              padding: '16px',
+              background: selectedMonth.month === 5 ? 'var(--bg-surface-active)' : 'var(--bg-surface-raised)',
+              border: selectedMonth.month === 5 ? '1px solid var(--fuji-cyan)' : '1px solid var(--border-hairline)',
+              borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span className="badge badge-cyan" style={{ fontSize: '11px' }}>
-                <Award size={12} /> อันดับ 1 ความคุ้มค่า
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <span className="editorial-tag tag-cyan" style={{ fontSize: '10px' }}>
+                <Award size={11} /> อันดับ 1 ความคุ้มค่า
               </span>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981' }}>Score 95/100</span>
+              <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#34d399' }}>95/100</span>
             </div>
-            <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: '4px 0' }}>
+            <div style={{ fontSize: '16px', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>
               พฤษภาคม (พ.ค.) • หลัง Golden Week
             </div>
-            <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
-              หลัง 8 พ.ค. คนโล่ง ตั๋วและโรงแรมถูกลงมาก อากาศสบาย 15-24°C ดอกชิบะซากุระบาน
+            <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: '1.45' }}>
+              หลัง 8 พ.ค. คนน้อย ตั๋ว/โรงแรมถูกลงมาก อากาศสบาย 15-24°C ดอกชิบะซากุระบาน
             </p>
           </div>
 
-          {/* Top 3 */}
+          {/* Top 3: March */}
           <div
             onClick={() => onSelectMonth(MONTHS_DATA[2])}
             style={{
-              padding: '14px',
-              background: selectedMonth.month === 3 ? 'rgba(244, 63, 94, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-              border: selectedMonth.month === 3 ? '1px solid var(--accent-pink)' : '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '12px',
+              padding: '16px',
+              background: selectedMonth.month === 3 ? 'var(--bg-surface-active)' : 'var(--bg-surface-raised)',
+              border: selectedMonth.month === 3 ? '1px solid var(--vermilion)' : '1px solid var(--border-hairline)',
+              borderRadius: 'var(--radius-sm)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span className="badge badge-sakura" style={{ fontSize: '11px' }}>
-                <Award size={12} /> อันดับ 1 ซากุระ
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <span className="editorial-tag tag-red" style={{ fontSize: '10px' }}>
+                <Award size={11} /> อันดับ 1 ซากุระ
               </span>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981' }}>Score 92/100</span>
+              <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#34d399' }}>92/100</span>
             </div>
-            <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: '4px 0' }}>
+            <div style={{ fontSize: '16px', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>
               ปลายมีนาคม (มี.ค.) • ซากุระแรกแย้ม
             </div>
-            <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.4' }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: '1.45' }}>
               ช่วง 22-31 มี.ค. ซากุระเริ่มบานสะพรั่งทั่วโตเกียว อากาศเย็นสดชื่น 6-15°C
             </p>
           </div>
         </div>
       </div>
 
-      {/* Goal Filter Pills */}
+      {/* Goal Filter Strip */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         {[
-          { id: 'all', label: 'ทั้งหมด (12 เดือน)' },
+          { id: 'all', label: 'ทั้งหมด 12 เดือน' },
           { id: 'weather_value', label: '🌟 อากาศดีเลิศ & คุ้มค่า (พ.ค. / ต.ค. / พ.ย.)' },
           { id: 'sakura', label: '🌸 เทศกาลซากุระ (ก.พ. / มี.ค. / เม.ย.)' },
           { id: 'autumn', label: '🍁 ใบไม้เปลี่ยนสี (ต.ค. / พ.ย.)' },
-          { id: 'winter', label: '❄️ วิวฟูจิชัด & ดูไฟประดับ (ธ.ค. / ม.ค. / ก.พ.)' },
-          { id: 'budget', label: '💰 ทริปประหยัดงบ (Low Cost Period)' },
+          { id: 'winter', label: '❄️ วิวฟูจิคม & ไฟประดับ (ธ.ค. / ม.ค. / ก.พ.)' },
+          { id: 'budget', label: '💰 ประหยัดงบ (Low Cost)' },
         ].map((f) => (
           <button
             key={f.id}
             onClick={() => setFilterGoal(f.id as FilterGoal)}
-            className={`btn-secondary ${filterGoal === f.id ? 'active' : ''}`}
+            className={`btn-editorial-secondary ${filterGoal === f.id ? 'active' : ''}`}
             style={{
               padding: '8px 16px',
-              fontSize: '13px',
-              borderRadius: '9999px',
-              background: filterGoal === f.id ? 'var(--accent-pink)' : 'rgba(255, 255, 255, 0.05)',
-              borderColor: filterGoal === f.id ? 'var(--accent-pink)' : 'var(--border-subtle)',
-              color: filterGoal === f.id ? '#fff' : 'var(--text-muted)',
+              fontSize: '12.5px',
+              fontFamily: 'var(--font-mono)',
+              background: filterGoal === f.id ? 'var(--vermilion)' : 'var(--bg-surface)',
+              color: filterGoal === f.id ? '#fff' : 'var(--text-secondary)',
+              border: '1px solid var(--border-hairline)',
             }}
           >
             {f.label}
@@ -223,131 +210,110 @@ export const BestDatesTab: React.FC<BestDatesTabProps> = ({
       </div>
 
       {/* 12 Months Cards Grid */}
-      <div className="grid-12-months">
+      <div className="grid-cols-3">
         {filteredMonths.map((m) => {
           const isSelected = selectedMonth.month === m.month;
+
           return (
             <div
               key={m.month}
-              className="card"
+              className="bento-card"
               style={{
-                borderColor: isSelected ? 'var(--accent-pink)' : 'rgba(255, 255, 255, 0.1)',
-                background: isSelected
-                  ? 'linear-gradient(180deg, rgba(244, 63, 94, 0.12) 0%, rgba(15, 23, 42, 0.9) 100%)'
-                  : 'var(--gradient-card)',
-                boxShadow: isSelected ? '0 0 25px rgba(244, 63, 94, 0.25)' : 'var(--shadow-card)',
+                borderColor: isSelected ? 'var(--vermilion)' : 'var(--border-hairline)',
+                background: isSelected ? 'var(--bg-surface-active)' : 'var(--grad-dark-bento)',
+                boxShadow: isSelected ? '0 0 25px var(--vermilion-glow)' : 'var(--shadow-bento)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
               }}
             >
               <div>
-                {/* Month Top Bar */}
+                {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <div>
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                      Month {m.month}
+                    <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
+                      MONTH // {String(m.month).padStart(2, '0')}
                     </span>
                     <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>
-                      {m.nameTh} <span style={{ fontSize: '14px', color: '#94a3b8', fontWeight: 400 }}>({m.nameEn})</span>
+                      {m.nameTh} <span style={{ fontSize: '13px', color: 'var(--text-tertiary)', fontWeight: 400 }}>({m.nameEn})</span>
                     </h3>
                   </div>
-                  <div
-                    style={{
-                      width: '42px',
-                      height: '42px',
-                      borderRadius: '50%',
-                      background: 'rgba(0, 0, 0, 0.4)',
-                      border: `2px solid ${getScoreColor(m.overallScore)}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: '13px',
-                      color: getScoreColor(m.overallScore),
-                    }}
-                  >
-                    {m.overallScore}
-                  </div>
+
+                  <span className={`editorial-tag ${getScoreTagClass(m.overallScore)}`} style={{ fontSize: '12px' }}>
+                    {m.overallScore}/100
+                  </span>
                 </div>
 
-                <div style={{ fontSize: '12px', color: '#fb7185', fontWeight: 600, marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', color: '#ff6b8b', fontWeight: 600, marginBottom: '14px' }}>
                   {m.seasonTh}
                 </div>
 
-                {/* Weather & Specs */}
+                {/* Metrics */}
                 <div
                   style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, 1fr)',
                     gap: '8px',
-                    padding: '10px',
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    background: 'var(--bg-surface-raised)',
+                    borderRadius: 'var(--radius-sm)',
                     marginBottom: '14px',
                     fontSize: '12px',
+                    fontFamily: 'var(--font-mono)',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#cbd5e1' }}>
-                    <Thermometer size={14} color="#38bdf8" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff' }}>
+                    <Thermometer size={13} color="var(--fuji-cyan)" />
                     <span>{m.avgTempC.min}° - {m.avgTempC.max}°C</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#cbd5e1' }}>
-                    <CloudRain size={14} color="#60a5fa" />
-                    <span>ฝนเฉลี่ย {m.rainyDays} วัน</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                    <CloudRain size={13} color="#60a5fa" />
+                    <span>ฝน {m.rainyDays} วัน</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#cbd5e1' }}>
-                    <Users size={14} color="#f59e0b" />
-                    <span>คนแน่น:</span>
-                    {renderDots(m.crowdLevel, '#f59e0b')}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                    <Users size={13} color="#f59e0b" />
+                    <span>คนแน่น: Lv.{m.crowdLevel}/5</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#cbd5e1' }}>
-                    <DollarSign size={14} color="#34d399" />
-                    <span>ราคา:</span>
-                    {renderDots(m.priceLevel, '#34d399')}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                    <DollarSign size={13} color="#34d399" />
+                    <span>ราคา: Lv.{m.priceLevel}/5</span>
                   </div>
                 </div>
 
-                {/* Sakura / Autumn Bloom Callout */}
+                {/* Event Alert */}
                 {m.sakuraBloom && (
-                  <div style={{ padding: '6px 10px', background: 'rgba(244, 63, 94, 0.1)', borderRadius: '6px', fontSize: '11.5px', color: '#fb7185', marginBottom: '10px' }}>
+                  <div style={{ padding: '6px 10px', background: 'rgba(255, 42, 95, 0.1)', borderRadius: 'var(--radius-xs)', fontSize: '11.5px', color: '#ff4d79', marginBottom: '10px' }}>
                     🌸 ซากุระ: {m.sakuraBloom}
                   </div>
                 )}
                 {m.autumnMomiji && (
-                  <div style={{ padding: '6px 10px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '6px', fontSize: '11.5px', color: '#fbbf24', marginBottom: '10px' }}>
+                  <div style={{ padding: '6px 10px', background: 'rgba(234, 179, 8, 0.1)', borderRadius: 'var(--radius-xs)', fontSize: '11.5px', color: '#facc15', marginBottom: '10px' }}>
                     🍁 ใบไม้เปลี่ยนสี: {m.autumnMomiji}
                   </div>
                 )}
 
-                {/* Highlights List */}
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ fontSize: '11.5px', color: 'var(--text-muted)', marginBottom: '4px' }}>จุดเด่นประจำเดือน:</div>
-                  <ul style={{ paddingLeft: '16px', fontSize: '12.5px', color: '#e2e8f0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    {m.highlights.map((h, idx) => (
+                {/* Highlights */}
+                <div style={{ marginBottom: '14px' }}>
+                  <ul style={{ paddingLeft: '16px', fontSize: '12.5px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    {m.highlights.slice(0, 3).map((h, idx) => (
                       <li key={idx}>{h}</li>
                     ))}
                   </ul>
                 </div>
-
-                {/* Clothing tip */}
-                <div style={{ fontSize: '11.5px', color: '#94a3b8', marginBottom: '16px', fontStyle: 'italic' }}>
-                  🧥 การแต่งกาย: {m.clothingAdvice}
-                </div>
               </div>
 
-              {/* Select Button */}
+              {/* Action Button */}
               <button
                 onClick={() => onSelectMonth(m)}
-                className={isSelected ? 'btn-primary' : 'btn-secondary'}
+                className={isSelected ? 'btn-editorial-primary' : 'btn-editorial-secondary'}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
                 {isSelected ? (
                   <>
-                    <Check size={16} /> เลือกเดือนนี้แล้ว
+                    <Check size={14} /> ล็อกเดือนนี้แล้ว
                   </>
                 ) : (
-                  'เลือกเดือนนี้สำหรับทริป 2027'
+                  'เลือกเดือนนี้'
                 )}
               </button>
             </div>

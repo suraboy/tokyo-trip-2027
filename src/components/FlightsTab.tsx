@@ -5,18 +5,14 @@ import { FlightOption, Currency } from '@/types/travel';
 import { FLIGHT_OPTIONS, JPY_TO_THB_RATE } from '@/data/mockData';
 import { 
   Plane, 
-  Clock, 
   Luggage, 
   Utensils, 
   Check, 
   Sparkles, 
-  ArrowRight, 
-  TrendingUp, 
   ShieldCheck, 
   Star, 
-  Filter,
-  Info,
-  Calendar
+  ArrowRight,
+  Info
 } from 'lucide-react';
 
 interface FlightsTabProps {
@@ -33,22 +29,20 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
   selectedMonthName,
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'full_service' | 'low_cost'>('all');
-  const [destFilter, setDestFilter] = useState<'all' | 'HND' | 'NRT' | 'KIX'>('all');
-  const [addLccBaggage, setAddLccBaggage] = useState<boolean>(true); // +1,400 THB for 20kg
-  const [addTravelInsurance, setAddTravelInsurance] = useState<boolean>(true); // +850 THB
+  const [addLccBaggage, setAddLccBaggage] = useState<boolean>(true);
+  const [addTravelInsurance, setAddTravelInsurance] = useState<boolean>(true);
 
   const filteredFlights = FLIGHT_OPTIONS.filter((f) => {
     if (filterType === 'direct' && f.stops !== 0) return false;
     if (filterType === 'full_service' && f.flightType !== 'Full Service') return false;
     if (filterType === 'low_cost' && f.flightType !== 'Low Cost') return false;
-    if (destFilter !== 'all' && f.to !== destFilter) return false;
     return true;
   });
 
   const calculateEffectivePrice = (flight: FlightOption) => {
     let price = flight.basePriceTHB;
     if (flight.flightType === 'Low Cost' && addLccBaggage) {
-      price += 1400; // Baggage 20kg roundtrip
+      price += 1400;
     }
     if (addTravelInsurance) {
       price += 850;
@@ -57,101 +51,100 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
   };
 
   const formatPrice = (thb: number) => {
-    if (currency === 'THB') {
-      return `฿${thb.toLocaleString()} THB`;
-    }
-    const jpy = Math.round(thb / JPY_TO_THB_RATE);
-    return `¥${jpy.toLocaleString()} JPY`;
+    if (currency === 'THB') return `฿${thb.toLocaleString()} THB`;
+    return `¥${Math.round(thb / JPY_TO_THB_RATE).toLocaleString()} JPY`;
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      {/* Flight Search Banner */}
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Aviation Header Card */}
+      <div className="bento-card">
+        <div className="bento-card-kanji-bg">航空</div>
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span className="badge badge-cyan">
-                <Plane size={12} /> Flight Intelligence 2027
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <span className="editorial-tag tag-cyan">
+                <Plane size={11} /> FLIGHT LOGISTICS & FARE RADAR 2027
               </span>
-              <span className="badge badge-sakura">เส้นทางยอดนิยม: กรุงเทพฯ ⇄ ญี่ปุ่น</span>
+              <span className="editorial-tag tag-red">ROUTE: BKK / DMK ⇄ TYO</span>
             </div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fff', letterSpacing: '-0.5px', marginBottom: '8px' }}>
               ค้นหาและเปรียบเทียบตั๋วเครื่องบินไปญี่ปุ่น (Flight Finder)
             </h2>
-            <p style={{ fontSize: '14px', color: '#94a3b8', maxWidth: '750px', lineHeight: '1.5' }}>
-              เปรียบเทียบสายการบิน Full-Service และ Low-Cost ทั้งบินตรงและต่อเครื่อง วิเคราะห์น้ำหนักกระเป๋า อาหาร เวลาไฟลท์ และสนามบินปลายทาง (Haneda vs Narita vs Kansai)
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '720px', lineHeight: '1.6' }}>
+              เปรียบเทียบสายการบิน Full-Service และ Low-Cost ทั้งบินตรงและต่อเครื่อง วิเคราะห์น้ำหนักกระเป๋า อาหาร เวลาไฟลท์ และสนามบินปลายทาง
             </p>
           </div>
 
           <div
             style={{
-              background: 'rgba(56, 189, 248, 0.1)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              borderRadius: '12px',
-              padding: '12px 18px',
+              background: 'var(--bg-surface-raised)',
+              border: '1px solid var(--fuji-cyan)',
+              borderRadius: 'var(--radius-md)',
+              padding: '14px 20px',
               textAlign: 'right',
+              boxShadow: '0 0 20px var(--fuji-cyan-glow)',
             }}
           >
-            <div style={{ fontSize: '11px', color: '#38bdf8' }}>เที่ยวบินที่เลือกไว้</div>
-            <div style={{ fontSize: '16px', fontWeight: 800, color: '#fff' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--fuji-cyan)' }}>
+              SELECTED ITINERARY
+            </div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
               {selectedFlight ? `${selectedFlight.airline} (${selectedFlight.flightNumber})` : 'ยังไม่ได้เลือก'}
             </div>
-            <div style={{ fontSize: '13px', color: '#34d399', fontWeight: 700 }}>
+            <div style={{ fontSize: '13px', color: '#34d399', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
               {selectedFlight ? formatPrice(calculateEffectivePrice(selectedFlight)) : '-'}
             </div>
           </div>
         </div>
 
-        {/* Airport Comparison Tips */}
+        {/* Airport Matrix */}
         <div
           style={{
-            marginTop: '20px',
+            marginTop: '24px',
             paddingTop: '20px',
-            borderTop: '1px solid var(--border-subtle)',
+            borderTop: '1px solid var(--border-hairline)',
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '14px',
           }}
         >
-          {/* HND */}
-          <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#38bdf8' }}>สนามบินฮาเนดะ (HND)</span>
-              <span className="badge badge-sakura" style={{ fontSize: '10px' }}>ใกล้เมืองสุด</span>
+          <div style={{ padding: '14px', background: 'var(--bg-surface-raised)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <strong style={{ fontSize: '13.5px', color: 'var(--fuji-cyan)' }}>HANEDA (HND)</strong>
+              <span className="editorial-tag tag-red" style={{ fontSize: '9.5px' }}>20 MIN TO CITY</span>
             </div>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: '1.4' }}>
-              เข้าสู่ใจกลางโตเกียว (Shinagawa/Shibuya) เพียง <strong>20 นาที</strong> ด้วยรถไฟ Keikyu / Tokyo Monorail ค่าเดินทางเพียง ~500 เยน
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              เข้าเมืองเร็วสุดด้วย Tokyo Monorail หรือ Keikyu Line ประหยัดเวลาเดินทาง
             </p>
           </div>
 
-          {/* NRT */}
-          <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#f59e0b' }}>สนามบินนาริตะ (NRT)</span>
-              <span className="badge badge-amber" style={{ fontSize: '10px' }}>ไฟลท์เยอะ/ถูกกว่า</span>
+          <div style={{ padding: '14px', background: 'var(--bg-surface-raised)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <strong style={{ fontSize: '13.5px', color: 'var(--tokyo-gold)' }}>NARITA (NRT)</strong>
+              <span className="editorial-tag tag-gold" style={{ fontSize: '9.5px' }}>PROMO FARES</span>
             </div>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: '1.4' }}>
-              ตัวเลือกสายการบิน LCC และไฟลท์โปรโมชั่นมากที่สุด เข้าโตเกียวด้วย Keisei Skyliner (40 นาทีถึง Ueno) หรือ N'EX
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              สายการบิน LCC และโปรโมชั่นตั๋วถูกที่สุด เข้าโตเกียวด้วย Keisei Skyliner 40 นาที
             </p>
           </div>
 
-          {/* KIX */}
-          <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#10b981' }}>สนามบินคันไซ โอซาก้า (KIX)</span>
-              <span className="badge badge-emerald" style={{ fontSize: '10px' }}>สำหรับคันไซ</span>
+          <div style={{ padding: '14px', background: 'var(--bg-surface-raised)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <strong style={{ fontSize: '13.5px', color: '#34d399' }}>KANSAI (KIX)</strong>
+              <span className="editorial-tag tag-green" style={{ fontSize: '9.5px' }}>OPEN-JAW</span>
             </div>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: '1.4' }}>
-              เหมาะกับทริป Open-Jaw เช่น ขาไปลงโตเกียว (NRT/HND) ขากลับบินจากโอซาก้า (KIX) โดยไม่ต้องนั่งชินคันเซ็นย้อนกลับมา
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              เหมาะกับทริปบินเข้าโตเกียว (TYO) แล้วบินกลับจากโอซาก้า (OSA)
             </p>
           </div>
         </div>
       </div>
 
-      {/* Filter & Add-on Controls */}
+      {/* Filter and Inclusions Strip */}
       <div
-        className="card"
+        className="bento-card"
         style={{
           padding: '16px 20px',
           display: 'flex',
@@ -161,90 +154,54 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
           gap: '16px',
         }}
       >
-        {/* Filter Pills */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setFilterType('all')}
-            className={`btn-secondary ${filterType === 'all' ? 'active' : ''}`}
-            style={{
-              padding: '6px 14px',
-              fontSize: '12.5px',
-              borderRadius: '9999px',
-              background: filterType === 'all' ? 'var(--accent-cyan)' : 'transparent',
-              color: filterType === 'all' ? '#000' : 'var(--text-muted)',
-              fontWeight: 700,
-            }}
-          >
-            ทั้งหมด ({FLIGHT_OPTIONS.length})
-          </button>
-          <button
-            onClick={() => setFilterType('direct')}
-            className={`btn-secondary ${filterType === 'direct' ? 'active' : ''}`}
-            style={{
-              padding: '6px 14px',
-              fontSize: '12.5px',
-              borderRadius: '9999px',
-              background: filterType === 'direct' ? 'var(--accent-cyan)' : 'transparent',
-              color: filterType === 'direct' ? '#000' : 'var(--text-muted)',
-              fontWeight: 700,
-            }}
-          >
-            ✈️ บินตรงเท่านั้น (Direct)
-          </button>
-          <button
-            onClick={() => setFilterType('full_service')}
-            className={`btn-secondary ${filterType === 'full_service' ? 'active' : ''}`}
-            style={{
-              padding: '6px 14px',
-              fontSize: '12.5px',
-              borderRadius: '9999px',
-              background: filterType === 'full_service' ? 'var(--accent-cyan)' : 'transparent',
-              color: filterType === 'full_service' ? '#000' : 'var(--text-muted)',
-              fontWeight: 700,
-            }}
-          >
-            🍱 Full Service (รวมกระเป๋า+อาหาร)
-          </button>
-          <button
-            onClick={() => setFilterType('low_cost')}
-            className={`btn-secondary ${filterType === 'low_cost' ? 'active' : ''}`}
-            style={{
-              padding: '6px 14px',
-              fontSize: '12.5px',
-              borderRadius: '9999px',
-              background: filterType === 'low_cost' ? 'var(--accent-cyan)' : 'transparent',
-              color: filterType === 'low_cost' ? '#000' : 'var(--text-muted)',
-              fontWeight: 700,
-            }}
-          >
-            💰 Budget Low Cost
-          </button>
+          {[
+            { id: 'all', label: `ทั้งหมด (${FLIGHT_OPTIONS.length})` },
+            { id: 'direct', label: '✈️ บินตรง (Direct)' },
+            { id: 'full_service', label: '🍱 Full Service' },
+            { id: 'low_cost', label: '💰 Budget LCC' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setFilterType(item.id as any)}
+              className={`btn-editorial-secondary ${filterType === item.id ? 'active' : ''}`}
+              style={{
+                padding: '6px 14px',
+                fontSize: '12px',
+                fontFamily: 'var(--font-mono)',
+                background: filterType === item.id ? 'var(--fuji-cyan)' : 'var(--bg-surface-raised)',
+                color: filterType === item.id ? '#000' : 'var(--text-secondary)',
+                fontWeight: 700,
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
 
-        {/* Add-ons Checkbox */}
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#cbd5e1', cursor: 'pointer' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>
             <input
               type="checkbox"
               checked={addLccBaggage}
               onChange={(e) => setAddLccBaggage(e.target.checked)}
-              style={{ accentColor: 'var(--accent-pink)' }}
+              style={{ accentColor: 'var(--vermilion)' }}
             />
-            <span>+ โหลดกระเป๋า 20kg สำหรับ LCC (+1,400฿)</span>
+            <span>+ โหลดกระเป๋า 20kg (+1,400฿)</span>
           </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#cbd5e1', cursor: 'pointer' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>
             <input
               type="checkbox"
               checked={addTravelInsurance}
               onChange={(e) => setAddTravelInsurance(e.target.checked)}
-              style={{ accentColor: 'var(--accent-pink)' }}
+              style={{ accentColor: 'var(--vermilion)' }}
             />
-            <span>+ ประกันเดินทางต่างประเทศ (+850฿)</span>
+            <span>+ ประกันเดินทาง (+850฿)</span>
           </label>
         </div>
       </div>
 
-      {/* Flight Cards List */}
+      {/* Boarding Pass Flight Cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {filteredFlights.map((flight) => {
           const isSelected = selectedFlight?.id === flight.id;
@@ -253,32 +210,30 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
           return (
             <div
               key={flight.id}
-              className="card"
+              className="flight-ticket-card"
               style={{
-                borderColor: isSelected ? 'var(--accent-cyan)' : 'rgba(255, 255, 255, 0.1)',
-                background: isSelected
-                  ? 'linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%)'
-                  : 'var(--gradient-card)',
-                boxShadow: isSelected ? '0 0 25px rgba(56, 189, 248, 0.25)' : 'var(--shadow-card)',
-                padding: '20px 24px',
+                borderColor: isSelected ? 'var(--fuji-cyan)' : 'var(--border-hairline)',
+                background: isSelected ? 'var(--bg-surface-active)' : 'var(--bg-surface)',
+                boxShadow: isSelected ? '0 0 25px var(--fuji-cyan-glow)' : 'var(--shadow-bento)',
+                padding: '22px 26px',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-                {/* Airline & Route Info */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '18px', minWidth: '260px' }}>
+                {/* Airline Column */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '240px' }}>
                   <div
                     style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '12px',
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: 'var(--radius-sm)',
                       background: flight.logoColor,
                       color: '#fff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      fontFamily: 'var(--font-mono)',
                       fontWeight: 800,
-                      fontSize: '16px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                      fontSize: '15px',
                     }}
                   >
                     {flight.airlineCode}
@@ -287,74 +242,78 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#fff' }}>{flight.airline}</h3>
-                      <span className="badge" style={{ background: 'rgba(255,255,255,0.08)', fontSize: '11px', color: '#cbd5e1' }}>
+                      <span className="editorial-tag tag-purple" style={{ fontSize: '10px' }}>
                         {flight.flightNumber}
                       </span>
                     </div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
                       {flight.aircraft} • {flight.flightType}
                     </div>
                   </div>
                 </div>
 
-                {/* Schedule Times */}
+                {/* Flight Times Timeline */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px', textAlign: 'center' }}>
                   <div>
-                    <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>{flight.departureTime}</div>
-                    <div style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>{flight.from}</div>
-                    <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{flight.fromName.split(' ')[0]}</div>
+                    <div style={{ fontSize: '22px', fontWeight: 900, fontFamily: 'var(--font-mono)', color: '#fff' }}>
+                      {flight.departureTime}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--fuji-cyan)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                      {flight.from}
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '100px' }}>
-                    <span style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>{flight.duration}</span>
-                    <div style={{ width: '100%', height: '2px', background: 'rgba(255,255,255,0.2)', position: 'relative' }}>
-                      <Plane size={12} color="#38bdf8" style={{ position: 'absolute', top: '-5px', left: '42%' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '110px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
+                      {flight.duration}
+                    </span>
+                    <div style={{ width: '100%', height: '2px', background: 'var(--border-strong)', margin: '4px 0', position: 'relative' }}>
+                      <Plane size={12} color="var(--fuji-cyan)" style={{ position: 'absolute', top: '-5px', left: '44%' }} />
                     </div>
-                    <span style={{ fontSize: '10.5px', color: flight.stops === 0 ? '#34d399' : '#fbbf24', marginTop: '4px', fontWeight: 600 }}>
+                    <span style={{ fontSize: '10.5px', color: flight.stops === 0 ? '#34d399' : '#fbbf24', fontWeight: 600 }}>
                       {flight.stops === 0 ? 'บินตรง Direct' : `แวะต่อเครื่อง ${flight.stopAirport?.split(' ')[0]}`}
                     </span>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '20px', fontWeight: 800, color: '#fff' }}>{flight.arrivalTime}</div>
-                    <div style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>{flight.to}</div>
-                    <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{flight.toName.split(' ')[0]}</div>
+                    <div style={{ fontSize: '22px', fontWeight: 900, fontFamily: 'var(--font-mono)', color: '#fff' }}>
+                      {flight.arrivalTime}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--fuji-cyan)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                      {flight.to}
+                    </div>
                   </div>
                 </div>
 
-                {/* Inclusions */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '160px', fontSize: '12px' }}>
+                {/* Specs */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', minWidth: '160px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: flight.baggageIncludedKg > 0 ? '#34d399' : '#fbbf24' }}>
                     <Luggage size={14} />
-                    <span>
-                      {flight.baggageIncludedKg > 0
-                        ? `กระเป๋าโหลด ${flight.baggageIncludedKg} kg`
-                        : 'กระเป๋าถือขึ้นเครื่อง 7kg'}
-                    </span>
+                    <span>{flight.baggageIncludedKg > 0 ? `โหลดกระเป๋า ${flight.baggageIncludedKg} kg` : 'กระเป๋าถือ 7kg'}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: flight.mealsIncluded ? '#34d399' : '#94a3b8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: flight.mealsIncluded ? '#34d399' : 'var(--text-tertiary)' }}>
                     <Utensils size={14} />
-                    <span>{flight.mealsIncluded ? 'อาหารร้อน & เครื่องดื่ม' : 'สั่งซื้ออาหารล่วงหน้าได้'}</span>
+                    <span>{flight.mealsIncluded ? 'อาหารร้อนครบชุด' : 'สั่งซื้ออาหารล่วงหน้า'}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#cbd5e1' }}>
-                    <Star size={14} fill="#fbbf24" color="#fbbf24" />
-                    <span>คะแนนรีวิว {flight.rating} / 5.0</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#facc15' }}>
+                    <Star size={13} fill="#facc15" />
+                    <span>คะแนน {flight.rating} / 5.0</span>
                   </div>
                 </div>
 
-                {/* Price & Select Button */}
+                {/* Price & Action */}
                 <div style={{ textAlign: 'right', minWidth: '160px' }}>
-                  <div style={{ fontSize: '22px', fontWeight: 800, color: '#38bdf8' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 900, fontFamily: 'var(--font-mono)', color: 'var(--fuji-cyan)' }}>
                     {formatPrice(effectivePrice)}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                    {flight.flightType === 'Low Cost' && addLccBaggage ? 'รวมกระเป๋า 20kg แล้ว' : 'ราคาตั๋วไป-กลับ / คน'}
+                  <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '8px', fontFamily: 'var(--font-mono)' }}>
+                    {flight.flightType === 'Low Cost' && addLccBaggage ? 'รวมกระเป๋า 20kg แล้ว' : 'ราคาไป-กลับ / คน'}
                   </div>
 
                   <button
                     onClick={() => onSelectFlight(flight)}
-                    className={isSelected ? 'btn-primary' : 'btn-secondary'}
-                    style={{ padding: '8px 18px', fontSize: '13px', width: '100%', justifyContent: 'center' }}
+                    className={isSelected ? 'btn-editorial-primary' : 'btn-editorial-secondary'}
+                    style={{ padding: '8px 18px', width: '100%', justifyContent: 'center' }}
                   >
                     {isSelected ? (
                       <>
@@ -367,10 +326,10 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
                 </div>
               </div>
 
-              {/* Tags */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              {/* Tag Badges */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-hairline)' }}>
                 {flight.tags.map((tag, idx) => (
-                  <span key={idx} style={{ padding: '2px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', fontSize: '11px', color: '#cbd5e1' }}>
+                  <span key={idx} className="editorial-tag tag-purple" style={{ fontSize: '10.5px' }}>
                     ✓ {tag}
                   </span>
                 ))}
