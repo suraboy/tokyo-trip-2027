@@ -135,12 +135,43 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
   const [viewYear, setViewYear] = useState<number>(2027);
   const [viewMonth, setViewMonth] = useState<number>(selectedMonthIndex + 1); // 1-12
 
-  // Sync with prop when selectedMonthIndex changes
+  // Auto-sync viewing month with selected range start date or prop
   React.useEffect(() => {
+    if (selectedRange?.start) {
+      const parts = selectedRange.start.split('-');
+      if (parts.length >= 2) {
+        const yr = parseInt(parts[0], 10);
+        const mo = parseInt(parts[1], 10);
+        if (!isNaN(yr) && !isNaN(mo)) {
+          setViewYear(yr);
+          setViewMonth(mo);
+          return;
+        }
+      }
+    }
     if (selectedMonthIndex !== undefined) {
       setViewMonth(selectedMonthIndex + 1);
     }
-  }, [selectedMonthIndex]);
+  }, [selectedRange?.start, selectedMonthIndex]);
+
+  // Selected range month meta
+  const selectedRangeMonthInfo = useMemo(() => {
+    if (!selectedRange?.start) return null;
+    const parts = selectedRange.start.split('-');
+    if (parts.length >= 2) {
+      const yr = parseInt(parts[0], 10);
+      const mo = parseInt(parts[1], 10);
+      const mData = MONTHS_DATA[mo - 1];
+      return {
+        year: yr,
+        month: mo,
+        monthNameTh: mData ? mData.nameTh : '',
+        monthNameEn: mData ? mData.nameEn : '',
+        isCurrentView: yr === viewYear && mo === viewMonth,
+      };
+    }
+    return null;
+  }, [selectedRange, viewYear, viewMonth]);
 
   // 1-Year (16-Months Rolling) List starting from current month
   const rollingMonths = useMemo(() => {
@@ -270,19 +301,20 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
     }
   };
 
-  const isDateSelected = (dateStr: string) => {
-    if (selectingStart === dateStr) return true;
-    if (!selectedRange || !selectedRange.start || !selectedRange.end) return false;
-    return dateStr >= selectedRange.start && dateStr <= selectedRange.end;
-  };
-
   const isRangeStart = (dateStr: string) => {
-    if (selectingStart === dateStr) return true;
+    if (selectingStart) return selectingStart === dateStr;
     return selectedRange?.start === dateStr;
   };
 
   const isRangeEnd = (dateStr: string) => {
+    if (selectingStart) return false;
     return selectedRange?.end === dateStr;
+  };
+
+  const isInRange = (dateStr: string) => {
+    if (selectingStart) return false;
+    if (!selectedRange?.start || !selectedRange?.end) return false;
+    return dateStr > selectedRange.start && dateStr < selectedRange.end;
   };
 
   const isInHoverRange = (dateStr: string) => {
@@ -290,6 +322,17 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
     const min = selectingStart < hoverDate ? selectingStart : hoverDate;
     const max = selectingStart < hoverDate ? hoverDate : selectingStart;
     return dateStr >= min && dateStr <= max;
+  };
+
+  const getTripDayInfo = (dateStr: string) => {
+    if (!selectedRange?.start || !selectedRange?.end) return null;
+    if (dateStr < selectedRange.start || dateStr > selectedRange.end) return null;
+    const startMs = new Date(selectedRange.start).getTime();
+    const curMs = new Date(dateStr).getTime();
+    const endMs = new Date(selectedRange.end).getTime();
+    const dayIdx = Math.round((curMs - startMs) / (1000 * 60 * 60 * 24)) + 1;
+    const totalDays = Math.round((endMs - startMs) / (1000 * 60 * 60 * 24)) + 1;
+    return { dayIdx, totalDays };
   };
 
   // Format currency
@@ -383,7 +426,29 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
           </div>
 
           {/* Month Stepper Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {selectedRangeMonthInfo && !selectedRangeMonthInfo.isCurrentView && (
+              <button
+                onClick={() => {
+                  setViewYear(selectedRangeMonthInfo.year);
+                  setViewMonth(selectedRangeMonthInfo.month);
+                  if (onSelectMonthIndex) onSelectMonthIndex(selectedRangeMonthInfo.month - 1);
+                }}
+                className="btn-editorial-primary"
+                style={{
+                  padding: '7px 14px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 0 14px var(--vermilion-glow)',
+                }}
+                title="กระโดดไปดูเดือนที่เลือกวันเดินทางไว้"
+              >
+                <span>🎯 ดูไฮไลท์เดือนที่เลือก ({selectedRangeMonthInfo.monthNameTh.slice(0, 3)} {String(selectedRangeMonthInfo.year).slice(2)})</span>
+              </button>
+            )}
+
             <button
               onClick={handlePrevMonth}
               className="btn-editorial-secondary"
@@ -436,9 +501,13 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
 
         {/* 1-Year (16-Months Rolling) Quick Jumper Strip */}
         <div style={{ marginBottom: '16px' }}>
-          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 700, marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 700, marginBottom: '6px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
             <span>📆 แถบเลือกเดือน 1 ปีเต็มจากวันนี้ (กดเปลี่ยนเดือนได้ทันที):</span>
-            <span style={{ color: 'var(--sakura-pink)' }}>{rollingMonths[0].labelTh} ➔ {rollingMonths[rollingMonths.length - 1].labelTh}</span>
+            <span style={{ color: 'var(--sakura-pink)' }}>
+              {selectedRange?.start && selectedRange?.end && (
+                <span>📍 ทริปที่เลือก: {selectedRange.start} ถึง {selectedRange.end}</span>
+              )}
+            </span>
           </div>
 
           <div
@@ -452,6 +521,8 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
           >
             {rollingMonths.map((rm, rIdx) => {
               const isCur = viewYear === rm.year && viewMonth === rm.month;
+              const hasSelectedTrip = selectedRangeMonthInfo?.year === rm.year && selectedRangeMonthInfo?.month === rm.month;
+
               return (
                 <button
                   key={`${rm.year}-${rm.month}-${rIdx}`}
@@ -463,26 +534,104 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                   style={{
                     padding: '6px 12px',
                     borderRadius: 'var(--radius-pill)',
-                    border: isCur ? '1.5px solid var(--vermilion)' : '1px solid var(--border-hairline)',
-                    background: isCur ? 'rgba(255, 101, 132, 0.2)' : 'var(--bg-surface-raised)',
-                    color: isCur ? '#fff' : 'var(--text-secondary)',
+                    border: isCur
+                      ? '1.5px solid var(--vermilion)'
+                      : hasSelectedTrip
+                      ? '1.5px solid #38bdf8'
+                      : '1px solid var(--border-hairline)',
+                    background: isCur
+                      ? 'rgba(255, 101, 132, 0.25)'
+                      : hasSelectedTrip
+                      ? 'rgba(56, 189, 248, 0.15)'
+                      : 'var(--bg-surface-raised)',
+                    color: isCur ? '#fff' : hasSelectedTrip ? '#38bdf8' : 'var(--text-secondary)',
                     fontSize: '11.5px',
-                    fontWeight: isCur ? 800 : 500,
+                    fontWeight: isCur || hasSelectedTrip ? 800 : 500,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
+                    boxShadow: hasSelectedTrip ? '0 0 10px rgba(56, 189, 248, 0.25)' : 'none',
                     transition: 'all 0.15s ease',
                   }}
                 >
                   <span>{rm.monthData.nameTh.slice(0, 3)} {String(rm.year).slice(2)}</span>
+                  {hasSelectedTrip && <span style={{ fontSize: '10px' }} title="เดือนนี้มีวันที่ล็อคไว้">🎯</span>}
                   {rm.monthData.overallScore >= 95 && <span style={{ fontSize: '10px' }}>👑</span>}
                 </button>
               );
             })}
           </div>
         </div>
+
+        {/* Informative Selection Status Banner */}
+        {selectingStart ? (
+          <div
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.15) 100%)',
+              border: '1.5px solid #f59e0b',
+              marginBottom: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '10px',
+              fontSize: '12.5px',
+              color: '#fff',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '16px' }}>⚡</span>
+              <span>
+                เลือกวันเริ่มต้น <strong>{selectingStart}</strong> แล้ว ➔ <strong>กรุณาคลิกเลือก "วันเดินทางกลับ" ในปฏิทิน</strong> เพื่อจบทริป
+              </span>
+            </div>
+            <button
+              onClick={() => setSelectingStart(null)}
+              className="btn-editorial-secondary"
+              style={{ padding: '4px 10px', fontSize: '11px' }}
+            >
+              ยกเลิก
+            </button>
+          </div>
+        ) : selectedRangeMonthInfo && !selectedRangeMonthInfo.isCurrentView ? (
+          <div
+            style={{
+              padding: '10px 16px',
+              borderRadius: '8px',
+              background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(255, 101, 132, 0.12) 100%)',
+              border: '1px solid rgba(56, 189, 248, 0.4)',
+              marginBottom: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '10px',
+              fontSize: '12px',
+              color: '#fff',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '14px' }}>📌</span>
+              <span>
+                คุณกำลังดูเดือน <strong>{currentMonthData.nameTh} {viewYear}</strong> • วันที่เลือกล็อคไว้คือ <strong>{selectedRange?.start} ถึง {selectedRange?.end} ({selectedRangeMonthInfo.monthNameTh} {selectedRangeMonthInfo.year})</strong>
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setViewYear(selectedRangeMonthInfo.year);
+                setViewMonth(selectedRangeMonthInfo.month);
+                if (onSelectMonthIndex) onSelectMonthIndex(selectedRangeMonthInfo.month - 1);
+              }}
+              className="btn-editorial-primary"
+              style={{ padding: '4px 12px', fontSize: '11.5px' }}
+            >
+              กระโดดไปดูไฮไลท์ {selectedRangeMonthInfo.monthNameTh} ➔
+            </button>
+          </div>
+        ) : null}
 
         {/* Legend / Price Guide */}
         <div
@@ -521,6 +670,46 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
             💡 คลิกเลือกวันเริ่มต้น แล้วคลิกเลือกวันเดินทางกลับ
           </div>
         </div>
+
+        {/* Active Selected Range Highlight Bar */}
+        {selectedRange?.start && selectedRange?.end && (
+          <div
+            style={{
+              padding: '12px 18px',
+              borderRadius: '10px',
+              background: 'linear-gradient(90deg, rgba(255, 0, 85, 0.25) 0%, rgba(2, 132, 199, 0.25) 100%)',
+              border: '2px solid rgba(255, 77, 109, 0.6)',
+              marginBottom: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              boxShadow: '0 4px 16px rgba(255, 0, 85, 0.2)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '14px', fontWeight: 900, color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CalendarDays size={18} color="#ff4d6d" />
+                <span>ไฮไลท์ช่วงวันที่เลือก:</span>
+              </span>
+              <span style={{ background: '#e11d48', color: '#fff', padding: '3px 10px', borderRadius: '6px', fontWeight: 900, fontSize: '13px', boxShadow: '0 2px 8px rgba(225, 29, 72, 0.5)' }}>
+                🛫 บินไป: {selectedRange.start}
+              </span>
+              <span style={{ color: 'var(--text-tertiary)', fontWeight: 800 }}>➔</span>
+              <span style={{ background: '#0284c7', color: '#fff', padding: '3px 10px', borderRadius: '6px', fontWeight: 900, fontSize: '13px', boxShadow: '0 2px 8px rgba(2, 132, 199, 0.5)' }}>
+                🛬 บินกลับ: {selectedRange.end}
+              </span>
+              <span style={{ background: 'rgba(255,255,255,0.1)', color: '#38bdf8', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, fontSize: '12px' }}>
+                ⏱️ รวม {Math.ceil(Math.abs(new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} วัน
+              </span>
+            </div>
+
+            <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)' }}>
+              💡 คลิกวันใหม่ในตารางเพื่อเปลี่ยนช่วงวัน
+            </div>
+          </div>
+        )}
 
         {/* Days of Week Header */}
         <div
@@ -572,17 +761,52 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
             }
 
             const { dateStr, day, dayOfWeek, isPast, isToday, roundTripPrice, priceTier, specialEvent } = dayItem;
-            const isSelected = isDateSelected(dateStr);
             const isStart = isRangeStart(dateStr);
             const isEnd = isRangeEnd(dateStr);
+            const inRange = isInRange(dateStr);
             const inHover = isInHoverRange(dateStr);
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const tripInfo = getTripDayInfo(dateStr);
 
             // Price color
             let priceColor = '#34d399';
             if (priceTier === 'mid') priceColor = '#38bdf8';
             if (priceTier === 'high') priceColor = '#f59e0b';
             if (priceTier === 'peak') priceColor = '#ef4444';
+
+            // Highlighting style determination
+            let cellBorder = '1px solid var(--border-hairline)';
+            let cellBg = 'var(--bg-surface-raised)';
+            let cellShadow = 'none';
+            let cellTransform = 'none';
+            let cellZIndex = 1;
+
+            if (isStart) {
+              cellBorder = '3px solid #ffffff';
+              cellBg = 'linear-gradient(135deg, #ff0055 0%, #d50000 100%)';
+              cellShadow = '0 0 22px rgba(255, 0, 85, 0.85), 0 4px 14px rgba(0,0,0,0.6)';
+              cellTransform = 'scale(1.03)';
+              cellZIndex = 4;
+            } else if (isEnd) {
+              cellBorder = '3px solid #ffffff';
+              cellBg = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)';
+              cellShadow = '0 0 22px rgba(2, 132, 199, 0.85), 0 4px 14px rgba(0,0,0,0.6)';
+              cellTransform = 'scale(1.03)';
+              cellZIndex = 4;
+            } else if (inRange) {
+              cellBorder = '2px solid #ff4d6d';
+              cellBg = 'linear-gradient(180deg, rgba(255, 77, 109, 0.55) 0%, rgba(225, 29, 72, 0.4) 100%)';
+              cellShadow = 'inset 0 0 14px rgba(255, 77, 109, 0.4), 0 0 10px rgba(255, 77, 109, 0.35)';
+              cellZIndex = 2;
+            } else if (inHover) {
+              cellBorder = '2px dashed #ff4d6d';
+              cellBg = 'rgba(255, 77, 109, 0.3)';
+              cellShadow = '0 0 12px rgba(255, 77, 109, 0.4)';
+              cellZIndex = 2;
+            } else if (isToday) {
+              cellBorder = '1.5px solid #38bdf8';
+              cellBg = 'rgba(56, 189, 248, 0.08)';
+            }
 
             return (
               <div
@@ -600,21 +824,11 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                   cursor: isPast ? 'not-allowed' : 'pointer',
                   opacity: isPast ? 0.35 : 1,
                   position: 'relative',
-                  border: isStart || isEnd
-                    ? '2px solid var(--vermilion)'
-                    : isToday
-                    ? '1.5px solid #38bdf8'
-                    : isSelected || inHover
-                    ? '1.5px solid rgba(255, 101, 132, 0.6)'
-                    : '1px solid var(--border-hairline)',
-                  background: isStart || isEnd
-                    ? 'linear-gradient(135deg, rgba(255, 101, 132, 0.35) 0%, rgba(255, 51, 102, 0.25) 100%)'
-                    : isSelected || inHover
-                    ? 'rgba(255, 101, 132, 0.12)'
-                    : isToday
-                    ? 'rgba(56, 189, 248, 0.08)'
-                    : 'var(--bg-surface-raised)',
-                  boxShadow: isStart || isEnd ? '0 0 14px var(--vermilion-glow)' : 'none',
+                  border: cellBorder,
+                  background: cellBg,
+                  boxShadow: cellShadow,
+                  transform: cellTransform,
+                  zIndex: cellZIndex,
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -624,25 +838,31 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                     style={{
                       fontSize: '14px',
                       fontWeight: 800,
-                      color: isStart || isEnd ? '#fff' : isWeekend ? '#f472b6' : '#fff',
+                      color: isStart || isEnd || inRange ? '#fff' : isWeekend ? '#f472b6' : '#fff',
+                      textShadow: isStart || isEnd || inRange ? '0 1px 3px rgba(0,0,0,0.6)' : 'none',
                     }}
                   >
                     {day}
                   </span>
 
-                  {isToday && (
+                  {isToday && !isStart && !isEnd && !inRange && (
                     <span style={{ fontSize: '9px', background: '#38bdf8', color: '#000', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>
                       วันนี้
                     </span>
                   )}
                   {isStart && (
-                    <span style={{ fontSize: '9px', background: 'var(--vermilion)', color: '#fff', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>
-                      วันไป
+                    <span style={{ fontSize: '9px', background: '#fff', color: '#d50000', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                      🛫 วันไป
                     </span>
                   )}
                   {isEnd && !isStart && (
-                    <span style={{ fontSize: '9px', background: '#38bdf8', color: '#000', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>
-                      วันกลับ
+                    <span style={{ fontSize: '9px', background: '#fff', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                      🛬 วันกลับ
+                    </span>
+                  )}
+                  {inRange && tripInfo && (
+                    <span style={{ fontSize: '8.5px', background: '#ff4d6d', color: '#fff', padding: '1px 5px', borderRadius: '3px', fontWeight: 900 }}>
+                      ✨ วันที่ {tripInfo.dayIdx}/{tripInfo.totalDays}
                     </span>
                   )}
                 </div>
@@ -653,7 +873,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                     style={{
                       fontSize: '9.5px',
                       fontWeight: 700,
-                      color: specialEvent.tagColor,
+                      color: isStart || isEnd || inRange ? '#fff' : specialEvent.tagColor,
                       lineHeight: 1.1,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -673,10 +893,17 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                 {/* Bottom Row: Estimated Round-Trip Flight Price */}
                 {!isPast ? (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 800, color: priceColor }}>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        color: isStart || isEnd || inRange ? '#fff' : priceColor,
+                        textShadow: isStart || isEnd || inRange ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
+                      }}
+                    >
                       {formatPrice(roundTripPrice)}
                     </span>
-                    <span style={{ fontSize: '9px', color: 'var(--text-tertiary)', fontWeight: 600 }}>
+                    <span style={{ fontSize: '9px', color: isStart || isEnd || inRange ? 'rgba(255,255,255,0.9)' : 'var(--text-tertiary)', fontWeight: 600 }}>
                       ไป-กลับ
                     </span>
                   </div>

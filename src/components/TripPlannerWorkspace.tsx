@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Attraction, FlightOption, HotelOption, Currency, CommunityTripPlan, MonthData } from '@/types/travel';
 import { ATTRACTIONS_DATA, FLIGHT_OPTIONS, HOTEL_OPTIONS, MONTHS_DATA, JPY_TO_THB_RATE, calculateTransitFromHotel } from '@/data/mockData';
 import {
@@ -95,6 +95,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
   };
 
   const [selectedSpotIds, setSelectedSpotIds] = useState<string[]>(resolveInitialSpots);
+  const [customSpots, setCustomSpots] = useState<Attraction[]>([]);
   const [selectedHotelId, setSelectedHotelId] = useState<string>(() => {
     if (initialPlan?.selected_hotel_id) return initialPlan.selected_hotel_id;
     if (initialPlan?.hotel_area) {
@@ -119,6 +120,44 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
   const [hotelAreaFilter, setHotelAreaFilter] = useState<string>('all');
   const [dateGoalFilter, setDateGoalFilter] = useState<'all' | 'autumn' | 'sakura' | 'budget' | 'winter'>('all');
   const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const allAttractions: Attraction[] = useMemo(() => {
+    return [...customSpots, ...ATTRACTIONS_DATA];
+  }, [customSpots]);
+
+  const handleAddCustomSpotFromGoogleMaps = (query: string) => {
+    if (!query.trim()) return;
+    const cleanName = query.trim();
+    const id = `custom-spot-${Date.now()}`;
+    const newSpot: Attraction = {
+      id,
+      nameEn: cleanName,
+      nameJp: cleanName,
+      nameTh: cleanName,
+      city: 'Tokyo',
+      area: 'Google Maps Place',
+      category: 'Culture & Shrine',
+      descriptionTh: `สถานที่นำเข้าจาก Google Maps: ${cleanName}`,
+      highlightTh: `ค้นพบและปักหมุดตรงจาก Google Maps`,
+      estimatedTimeHours: 2,
+      recommendedTimeOfDay: 'Anytime',
+      priceJPY: 0,
+      nearestStation: 'Google Maps Location',
+      walkingMinutes: 5,
+      crowdRating: 3,
+      mustVisitScore: 90,
+      imageUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&auto=format&fit=crop&q=80',
+      tipsTh: ['ตรวจสอบเวลาเปิด-ปิดและเส้นทางสดบน Google Maps ก่อนออกเดินทาง'],
+      tags: ['Google Maps Live', 'Custom Spot', 'User Added'],
+      lat: 35.6762,
+      lng: 139.6503,
+    };
+
+    setCustomSpots((prev) => [newSpot, ...prev]);
+    if (!selectedSpotIds.includes(id)) {
+      setSelectedSpotIds((prev) => [...prev, id]);
+    }
+  };
 
   const selectedMonth = MONTHS_DATA[selectedMonthIndex] || MONTHS_DATA[10];
   const selectedHotel = HOTEL_OPTIONS.find((h) => h.id === selectedHotelId) || HOTEL_OPTIONS[0];
@@ -145,10 +184,10 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
     return true;
   });
 
-  const filteredAttractions = ATTRACTIONS_DATA.filter((spot) => {
+  const filteredAttractions = allAttractions.filter((spot: Attraction) => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      const matchText = `${spot.nameTh} ${spot.nameEn} ${spot.nameJp} ${spot.area} ${spot.city} ${spot.nearestStation} ${spot.tags.join(' ')}`.toLowerCase();
+      const matchText = `${spot.nameTh} ${spot.nameEn} ${spot.nameJp || ''} ${spot.area} ${spot.city} ${spot.nearestStation} ${spot.tags.join(' ')}`.toLowerCase();
       if (!matchText.includes(q)) return false;
     }
 
@@ -196,7 +235,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
     const chosenFlight = FLIGHT_OPTIONS.find((f) => f.id === flightId) || selectedFlight;
     setIsSaving(true);
     try {
-      const selectedSpots = ATTRACTIONS_DATA.filter((a) => selectedSpotIds.includes(a.id)).map((a) => a.nameTh.split('(')[0].trim());
+      const selectedSpots = allAttractions.filter((a: Attraction) => selectedSpotIds.includes(a.id)).map((a: Attraction) => a.nameTh.split('(')[0].trim());
       await onSaveTrip({
         id: initialPlan?.id,
         trip_title: tripTitle,
@@ -219,10 +258,38 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
     }
   };
 
+  const handleSelectHotelAndProceed = async (hotelId: string) => {
+    setSelectedHotelId(hotelId);
+    const chosenHotel = HOTEL_OPTIONS.find((h) => h.id === hotelId) || selectedHotel;
+    setIsSaving(true);
+    try {
+      const selectedSpots = allAttractions.filter((a: Attraction) => selectedSpotIds.includes(a.id)).map((a: Attraction) => a.nameTh.split('(')[0].trim());
+      await onSaveTrip({
+        id: initialPlan?.id,
+        trip_title: tripTitle,
+        creator_name: creatorName,
+        target_year: 2027,
+        target_month: selectedMonth.month,
+        duration_days: durationDays,
+        destinations: selectedSpots,
+        selected_flight: `${selectedFlight.airline} (${selectedFlight.flightNumber})`,
+        selected_hotel_id: chosenHotel.id,
+        hotel_area: chosenHotel.area,
+        estimated_budget_thb: selectedFlight.basePriceTHB + ((chosenHotel.lowestPriceTHB || chosenHotel.pricePerNightTHB) * stayNights) + 15000,
+        tags: [`${durationDays} วัน`, selectedMonth.nameTh, chosenHotel.area, 'Custom Workspace'],
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSaving(false);
+      setActiveSection('attractions');
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const selectedSpots = ATTRACTIONS_DATA.filter((a) => selectedSpotIds.includes(a.id)).map((a) => a.nameTh.split('(')[0].trim());
+      const selectedSpots = allAttractions.filter((a: Attraction) => selectedSpotIds.includes(a.id)).map((a: Attraction) => a.nameTh.split('(')[0].trim());
       await onSaveTrip({
         id: initialPlan?.id,
         trip_title: tripTitle,
@@ -1328,11 +1395,12 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
                       </div>
 
                       <button
-                        onClick={() => setSelectedHotelId(hotel.id)}
+                        onClick={() => handleSelectHotelAndProceed(hotel.id)}
                         className={isSelected ? 'btn-editorial-primary' : 'btn-editorial-secondary'}
-                        style={{ padding: '8px 18px', fontSize: '12.5px' }}
+                        style={{ padding: '8px 18px', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: '6px' }}
                       >
-                        {isSelected ? '✓ เลือกโรงแรมนี้แล้ว' : 'เลือกโรงแรมนี้'}
+                        <span>{isSelected ? '✓ เลือกแล้ว ➔ ถัดไป' : 'เลือกโรงแรมนี้ ➔ ถัดไป'}</span>
+                        <ArrowRight size={14} />
                       </button>
                     </div>
                   </div>
@@ -1364,7 +1432,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
             </div>
 
             <button
-              onClick={() => setActiveSection('attractions')}
+              onClick={() => handleSelectHotelAndProceed(selectedHotel.id)}
               className="btn-editorial-primary"
               style={{ padding: '10px 24px', fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '8px' }}
             >
@@ -1472,12 +1540,103 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
                   พบ <strong style={{ color: '#fff' }}>{filteredAttractions.length}</strong> แห่ง
                 </div>
               </div>
+
+              {/* Google Maps Live Search & Custom Place Adder Strip */}
+              {searchQuery.trim().length > 0 && (
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(52, 211, 153, 0.12) 100%)',
+                    border: '1.5px solid rgba(56, 189, 248, 0.4)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                    <span style={{ fontSize: '16px' }}>🗺️</span>
+                    <span>
+                      ค้นหาพิกัดสด: <strong style={{ color: '#fff' }}>"{searchQuery}"</strong> จาก Google Maps
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <a
+                      href={getGoogleMapsSearchUrl(`${searchQuery} Tokyo Japan`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-editorial-secondary"
+                      style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                      title="เปิดหน้าค้นหาบน Google Maps ในแท็บใหม่"
+                    >
+                      <ExternalLink size={12} />
+                      <span>เปิดดูบน Google Maps</span>
+                    </a>
+
+                    <button
+                      onClick={() => handleAddCustomSpotFromGoogleMaps(searchQuery)}
+                      className="btn-editorial-primary"
+                      style={{ padding: '6px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Plus size={14} />
+                      <span>+ ดึงพิกัดเพิ่มเข้าในทริปทันที</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Empty State with Direct Google Maps Integration */}
+          {filteredAttractions.length === 0 && (
+            <div
+              className="bento-card"
+              style={{
+                padding: '40px 24px',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '16px',
+                background: 'linear-gradient(180deg, rgba(255, 101, 132, 0.06) 0%, var(--bg-surface) 100%)',
+              }}
+            >
+              <div style={{ fontSize: '40px' }}>📍</div>
+              <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
+                ไม่พบ "{searchQuery}" ในแคตตาล็อกหลัก 30+ แห่ง
+              </h4>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', maxWidth: '520px', lineHeight: 1.5 }}>
+                คุณสามารถดึงพิกัดสดจาก Google Maps หรือกดปักหมุดเพิ่มสถานที่นี้เข้าสู่ทริปโตเกียวของคุณได้ทันที!
+              </p>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <a
+                  href={getGoogleMapsSearchUrl(`${searchQuery} Tokyo Japan`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-editorial-secondary"
+                  style={{ padding: '10px 20px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}
+                >
+                  <ExternalLink size={14} />
+                  <span>🔍 ดูตำแหน่งและรีวิวบน Google Maps</span>
+                </a>
+                <button
+                  onClick={() => handleAddCustomSpotFromGoogleMaps(searchQuery)}
+                  className="btn-editorial-primary"
+                  style={{ padding: '10px 22px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={16} />
+                  <span>➕ ดึงและเพิ่ม "{searchQuery}" เข้าทริปทันที</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Attractions Grid */}
           <div className="grid-cols-3">
-            {filteredAttractions.map((spot) => {
+            {filteredAttractions.map((spot: Attraction) => {
               const isSelected = selectedSpotIds.includes(spot.id);
               const transit = calculateTransitFromHotel(selectedHotel.area, spot.area, spot.nameTh);
               const gmapsUrl = getGoogleMapsSearchUrl(`${spot.nameEn} ${spot.nameJp || ''} ${spot.city} Japan`);
@@ -1686,9 +1845,10 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
             {/* Interactive Leaflet Map */}
             <TripMap
               hotel={selectedHotel}
-              selectedAttractions={ATTRACTIONS_DATA.filter((a) => selectedSpotIds.includes(a.id))}
-              allAttractions={ATTRACTIONS_DATA.filter((a) => selectedSpotIds.includes(a.id))}
+              selectedAttractions={allAttractions.filter((a: Attraction) => selectedSpotIds.includes(a.id))}
+              allAttractions={allAttractions}
               selectedSpotIds={selectedSpotIds}
+              flight={selectedFlight}
             />
 
             {/* Distance Legend */}
@@ -1699,15 +1859,189 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
               marginTop: '14px',
               fontSize: '12px',
               color: 'var(--text-secondary)',
+              alignItems: 'center',
             }}>
-              <span>🏨 = โรงแรมที่เลือก ({selectedHotel.nameTh})</span>
-              <span style={{ color: '#10b981' }}>● = สถานที่ในทริป</span>
-              <span style={{ color: '#ff6584' }}>--- = เส้นทางระยะทาง</span>
+              <span style={{ color: '#8b5cf6', fontWeight: 700 }}>🛫 = จุดเริ่มต้นทริป ({selectedFlight.to === 'HND' ? 'สนามบินฮาเนดะ HND' : 'สนามบินนาริตะ NRT'})</span>
+              <span style={{ color: '#38bdf8', fontWeight: 700 }}>--- = ขาที่ 0: เส้นทางเข้าเมืองสู่ที่พัก</span>
+              <span style={{ color: '#ff3366', fontWeight: 700 }}>🏨 = ฐานที่พัก ({selectedHotel.nameTh})</span>
+              <span style={{ color: '#10b981', fontWeight: 700 }}>● = สถานที่ในทริป</span>
+              <span style={{ color: '#ff6584' }}>--- = เส้นทางเที่ยวประจำวัน</span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
+              {/* Leg 0: Airport to Hotel Comprehensive Transfer Module */}
+              <div
+                style={{
+                  padding: '20px 22px',
+                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(56, 189, 248, 0.1) 100%), var(--bg-surface-raised)',
+                  border: '1.5px solid rgba(139, 92, 246, 0.4)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: '0 6px 20px rgba(139, 92, 246, 0.12)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                }}
+              >
+                {/* Header Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '20px' }}>🛫</span>
+                      <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#fff' }}>
+                        ขาเริ่มต้นทริป: การเดินทางจาก {selectedFlight.to === 'HND' ? 'สนามบินฮาเนดะ (HND)' : 'สนามบินนาริตะ (NRT)'} ➔ โรงแรม {selectedHotel.nameTh}
+                      </h4>
+                      <span className="editorial-tag tag-purple" style={{ fontSize: '11px', fontWeight: 800 }}>
+                        LEG 0 • AIRPORT TRANSFER
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      เที่ยวบิน: <strong style={{ color: '#fff' }}>{selectedFlight.airline} ({selectedFlight.flightNumber})</strong> • ปลายทาง: <strong style={{ color: '#38bdf8' }}>ย่าน{selectedHotel.areaTh.split('(')[0]} ({selectedHotel.nameTh})</strong>
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <a
+                      href={getGoogleMapsSearchUrl(`${selectedFlight.to === 'HND' ? 'Haneda Airport' : 'Narita Airport'} to ${selectedHotel.nameEn} Tokyo`)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-editorial-primary"
+                      style={{ padding: '7px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}
+                      title="ดูเส้นทางและตารางเวลาสดบน Google Maps"
+                    >
+                      <ExternalLink size={13} />
+                      <span>เปิดเส้นทางสดบน Google Maps</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* 3 Travel Modes Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+                  {/* Mode 1: Express Train */}
+                  <div
+                    style={{
+                      background: 'rgba(12, 16, 23, 0.65)',
+                      padding: '14px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🚄 รถไฟด่วน (เร็วสุด)</span>
+                      </div>
+                      <span className="editorial-tag tag-green" style={{ fontSize: '10.5px' }}>
+                        แนะนำ ⭐
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#fff', lineHeight: 1.4 }}>
+                      {selectedFlight.to === 'HND' ? (
+                        <>
+                          • <strong>Tokyo Monorail:</strong> 13 นาทีสู่ Hamamatsucho (¥500) ต่อ Yamanote Line<br />
+                          • <strong>Keikyu Airport:</strong> 11 นาทีสู่ Shinagawa / ยิงตรงสาย Asakusa Line (¥330)
+                        </>
+                      ) : selectedHotel.area.toLowerCase() === 'ueno' || selectedHotel.area.toLowerCase() === 'asakusa' ? (
+                        <>
+                          • <strong>Keisei Skyliner:</strong> 41 นาที ยิงตรงลง Keisei Ueno (¥2,570) เร็วที่สุด!<br />
+                          • <strong>Access Express:</strong> 55 นาที ยิงตรงลง Asakusa (¥1,410) ประหยัด
+                        </>
+                      ) : (
+                        <>
+                          • <strong>JR Narita Express (N'EX):</strong> 55-65 นาที ยิงตรง Shinjuku/Shibuya/Tokyo (¥3,250) ไม่ต้องยกกระเป๋าเปลี่ยนขบวน<br />
+                          • <strong>Keisei Skyliner:</strong> 36 นาทีลง Nippori ต่อ Yamanote Line (¥2,570)
+                        </>
+                      )}
+                    </div>
+                    <div style={{ marginTop: '8px', fontSize: '11.5px', color: 'var(--text-tertiary)' }}>
+                      ⏱️ เวลา: ~{selectedFlight.to === 'HND' ? '20-30' : '41-55'} นาที • ค่าตั๋ว: ~{selectedFlight.to === 'HND' ? '¥330-500' : '¥2,570-3,250'}
+                    </div>
+                  </div>
+
+                  {/* Mode 2: Limousine Bus */}
+                  <div
+                    style={{
+                      background: 'rgba(12, 16, 23, 0.65)',
+                      padding: '14px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🚌 Airport Limousine Bus</span>
+                      </div>
+                      <span className="editorial-tag tag-purple" style={{ fontSize: '10.5px' }}>
+                        สัมภาระเยอะ 🧳
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#fff', lineHeight: 1.4 }}>
+                      • รถบัสปรับอากาศ VIP มีที่เก็บกระเป๋าใต้ท้องรถ 2 ใบ/คน<br />
+                      • จอดส่งตรงถึงหน้าโรงแรมใหญ่และสถานีหลัก (Shinjuku West, Ginza, Tokyo Stn, Shibuya)<br />
+                      • ไม่ต้องลากกระเป๋าขึ้น-ลงบันไดสถานีรถไฟ
+                    </div>
+                    <div style={{ marginTop: '8px', fontSize: '11.5px', color: 'var(--text-tertiary)' }}>
+                      ⏱️ เวลา: ~{selectedFlight.to === 'HND' ? '35-45' : '85-100'} นาที • ค่าโดยสาร: ~{selectedFlight.to === 'HND' ? '¥1,400' : '¥3,200'}
+                    </div>
+                  </div>
+
+                  {/* Mode 3: Recommended Pass / IC Card */}
+                  <div
+                    style={{
+                      background: 'rgba(12, 16, 23, 0.65)',
+                      padding: '14px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(52, 211, 153, 0.3)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <div style={{ fontWeight: 800, color: '#34d399', fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🎫 บัตรโดยสาร & พาสแนะนำ</span>
+                      </div>
+                      <span className="editorial-tag tag-cyan" style={{ fontSize: '10.5px' }}>
+                        MUST HAVE
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#fff', lineHeight: 1.4 }}>
+                      • <strong>Welcome Suica / Pasmo Passport:</strong> แตะขึ้นรถไฟทุกสายในโตเกียวได้ทันที<br />
+                      • <strong>Tokyo Subway 72hr Ticket:</strong> ขึ้น Tokyo Metro + Toei Subway ไม่จำกัดเที่ยว (¥1,500)<br />
+                      • แนะนำเพิ่ม Suica เข้า Apple Wallet / Google Wallet ก่อนบิน
+                    </div>
+                    <div style={{ marginTop: '8px', fontSize: '11.5px', color: 'var(--text-tertiary)' }}>
+                      💡 แตะผ่านช่องตรวจตั๋วได้รวดเร็ว ไม่ต้องต่อคิวซื้อเหรียญ
+                    </div>
+                  </div>
+                </div>
+
+                {/* Specific Hotel Arrival Recommendation */}
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '6px',
+                    background: 'rgba(168, 85, 247, 0.1)',
+                    border: '1px solid rgba(168, 85, 247, 0.25)',
+                    fontSize: '12.5px',
+                    color: '#e9d5ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>💡</span>
+                  <span>
+                    <strong>คำแนะนำสำหรับ {selectedHotel.nameTh} ({selectedHotel.areaTh.split('(')[0]}):</strong>{' '}
+                    {selectedFlight.to === 'HND'
+                      ? `นั่ง Tokyo Monorail 13 นาทีลง Hamamatsucho ต่อรถไฟสาย Yamanote Line มายังสถานี ${selectedHotel.nearestStation} เดินต่อเพียง ${selectedHotel.walkMinutesToStation} นาที`
+                      : selectedHotel.area.toLowerCase() === 'ueno'
+                      ? `นั่ง Keisei Skyliner 41 นาทีรวดเดียวถึง Keisei Ueno Station เดินข้ามถนน 3 นาทีถึงโรงแรมทันที!`
+                      : selectedHotel.area.toLowerCase() === 'shinjuku'
+                      ? `นั่ง JR Narita Express (N'EX) ยิงตรงถึง Shinjuku Station ทางออก East Exit แล้วเดิน 5 นาทีเข้าโรงแรม สะดวกสุดไม่ต้องยกกระเป๋าเปลี่ยนสาย`
+                      : `นั่ง Keisei Skyliner 36 นาทีลงสถานี Nippori แล้วต่อ JR Yamanote Line มายังสถานี ${selectedHotel.nearestStation}`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Legs 1..N: Hotel to Attractions */}
               {selectedSpotIds.map((spotId) => {
-                const spot = ATTRACTIONS_DATA.find((a) => a.id === spotId);
+                const spot = allAttractions.find((a: Attraction) => a.id === spotId);
                 if (!spot) return null;
                 const transit = calculateTransitFromHotel(selectedHotel.area, spot.area, spot.nameTh);
                 const gmapsUrl = getGoogleMapsSearchUrl(`${spot.nameEn} ${spot.nameJp || ''} ${spot.city} Japan`);
