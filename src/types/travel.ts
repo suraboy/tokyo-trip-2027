@@ -20,6 +20,7 @@ export interface MonthData {
   sakuraBloom?: string;
   autumnMomiji?: string;
   clothingAdvice: string;
+  flightPriceRangeTHB?: { min: number; max: number };
 }
 
 export interface FlightOption {
@@ -47,6 +48,7 @@ export interface FlightOption {
   flightType: 'Full Service' | 'Low Cost';
   rating: number;
   tags: string[];
+  officialWebsiteUrl?: string;
   sourceAggregator?: string; // เช่น Agoda, Skyscanner, Trip.com, Airline Direct
   isBestPrice?: boolean;
 }
@@ -79,11 +81,20 @@ export interface Attraction {
   lng: number;
 }
 
+export interface HotelPriceQuote {
+  source: 'Agoda' | 'Booking.com' | 'Trip.com' | 'Expedia' | 'Hotels.com' | 'Rakuten Travel';
+  priceTHB: number;
+  priceJPY: number;
+  isLowest: boolean;
+  offerText?: string;
+  bookingUrl: string;
+}
+
 export interface HotelOption {
   id: string;
   nameTh: string;
   nameEn: string;
-  area: 'Shinjuku' | 'Ueno' | 'Asakusa' | 'Shibuya' | 'Ginza' | 'Kawaguchiko';
+  area: 'Shinjuku' | 'Ueno' | 'Asakusa' | 'Shibuya' | 'Ginza' | 'Akihabara' | 'Ikebukuro' | 'Roppongi' | 'Tokyo Station' | 'Kawaguchiko';
   areaTh: string;
   starRating: number;
   ratingScore: number; // 1 - 10
@@ -92,12 +103,15 @@ export interface HotelOption {
   nearestStation: string;
   walkMinutesToStation: number;
   highlights: string[];
-  tagBadge: 'คุ้มค่าที่สุด' | 'ใกล้รถไฟ 1 นาที' | 'วิวฟูจิสวย' | 'ช้อปปิ้งสะดวก' | 'พรีเมียม';
+  tagBadge: 'คุ้มค่าที่สุด' | 'ใกล้รถไฟ 1 นาที' | 'วิวฟูจิสวย' | 'ช้อปปิ้งสะดวก' | 'พรีเมียม' | 'ยอดนิยม';
   imageUrl: string;
   bookingSource: string; // เช่น 'Agoda Best Deal', 'Booking.com', 'Trip.com'
   isRecommendedBestValue?: boolean;
   lat: number;
   lng: number;
+  priceComparison?: HotelPriceQuote[];
+  lowestPriceTHB?: number;
+  bestSource?: string;
 }
 
 export interface WayfinderDecision {

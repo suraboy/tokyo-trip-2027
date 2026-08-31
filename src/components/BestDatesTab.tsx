@@ -15,6 +15,7 @@ import {
   Calendar,
   ArrowRight
 } from 'lucide-react';
+import InteractiveFlightCalendar from './InteractiveFlightCalendar';
 
 interface BestDatesTabProps {
   selectedMonth: MonthData;
@@ -27,7 +28,12 @@ export const BestDatesTab: React.FC<BestDatesTabProps> = ({
   selectedMonth,
   onSelectMonth,
 }) => {
+  const [viewMode, setViewMode] = useState<'calendar' | 'matrix'>('calendar');
   const [filterGoal, setFilterGoal] = useState<FilterGoal>('all');
+  const [selectedRange, setSelectedRange] = useState<{ start: string; end: string }>({
+    start: '2027-11-10',
+    end: '2027-11-16',
+  });
 
   const filteredMonths = MONTHS_DATA.filter((m) => {
     if (filterGoal === 'sakura') return m.month === 3 || m.month === 4 || m.month === 2;
@@ -181,36 +187,101 @@ export const BestDatesTab: React.FC<BestDatesTabProps> = ({
         </div>
       </div>
 
-      {/* Goal Filter Strip */}
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        {[
-          { id: 'all', label: 'ทั้งหมด 12 เดือน' },
-          { id: 'weather_value', label: '🌟 อากาศดีเลิศ & คุ้มค่า (พ.ค. / ต.ค. / พ.ย.)' },
-          { id: 'sakura', label: '🌸 เทศกาลซากุระ (ก.พ. / มี.ค. / เม.ย.)' },
-          { id: 'autumn', label: '🍁 ใบไม้เปลี่ยนสี (ต.ค. / พ.ย.)' },
-          { id: 'winter', label: '❄️ วิวฟูจิคม & ไฟประดับ (ธ.ค. / ม.ค. / ก.พ.)' },
-          { id: 'budget', label: '💰 ประหยัดงบ (Low Cost)' },
-        ].map((f) => (
+      {/* View Mode Switcher */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', background: 'var(--bg-surface-raised)', padding: '4px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-hairline)' }}>
           <button
-            key={f.id}
-            onClick={() => setFilterGoal(f.id as FilterGoal)}
-            className={`btn-editorial-secondary ${filterGoal === f.id ? 'active' : ''}`}
+            onClick={() => setViewMode('calendar')}
             style={{
-              padding: '8px 16px',
-              fontSize: '12.5px',
-              fontFamily: 'var(--font-mono)',
-              background: filterGoal === f.id ? 'var(--vermilion)' : 'var(--bg-surface)',
-              color: filterGoal === f.id ? '#fff' : 'var(--text-secondary)',
-              border: '1px solid var(--border-hairline)',
+              padding: '8px 18px',
+              borderRadius: 'var(--radius-pill)',
+              border: 'none',
+              background: viewMode === 'calendar' ? 'var(--vermilion)' : 'transparent',
+              color: viewMode === 'calendar' ? '#fff' : 'var(--text-secondary)',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s ease',
             }}
           >
-            {f.label}
+            <Calendar size={15} />
+            <span>📅 ปฏิทินรายวัน (ราคาตั๋วบินแยกวัน)</span>
           </button>
-        ))}
+
+          <button
+            onClick={() => setViewMode('matrix')}
+            style={{
+              padding: '8px 18px',
+              borderRadius: 'var(--radius-pill)',
+              border: 'none',
+              background: viewMode === 'matrix' ? 'var(--vermilion)' : 'transparent',
+              color: viewMode === 'matrix' ? '#fff' : 'var(--text-secondary)',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>📊 ภาพรวม 12 เดือน</span>
+          </button>
+        </div>
+
+        {viewMode === 'calendar' && (
+          <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+            คลิกเลือกช่วงวันเดินทางเพื่อประมาณการราคาตั๋วบิน
+          </div>
+        )}
       </div>
 
-      {/* 12 Months Cards Grid */}
-      <div className="grid-cols-3">
+      {/* VIEW 1: CALENDAR VIEW */}
+      {viewMode === 'calendar' && (
+        <InteractiveFlightCalendar
+          selectedMonthIndex={selectedMonth.month - 1}
+          onSelectMonthIndex={(idx) => onSelectMonth(MONTHS_DATA[idx])}
+          selectedRange={selectedRange}
+          onSelectRange={(range) => setSelectedRange(range)}
+        />
+      )}
+
+      {/* VIEW 2: MONTH MATRIX VIEW */}
+      {viewMode === 'matrix' && (
+        <>
+          {/* Goal Filter Strip */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {[
+              { id: 'all', label: 'ทั้งหมด 12 เดือน' },
+              { id: 'weather_value', label: '🌟 อากาศดีเลิศ & คุ้มค่า (พ.ค. / ต.ค. / พ.ย.)' },
+              { id: 'sakura', label: '🌸 เทศกาลซากุระ (ก.พ. / มี.ค. / เม.ย.)' },
+              { id: 'autumn', label: '🍁 ใบไม้เปลี่ยนสี (ต.ค. / พ.ย.)' },
+              { id: 'winter', label: '❄️ วิวฟูจิคม & ไฟประดับ (ธ.ค. / ม.ค. / ก.พ.)' },
+              { id: 'budget', label: '💰 ประหยัดงบ (Low Cost)' },
+            ].map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setFilterGoal(f.id as FilterGoal)}
+                className={`btn-editorial-secondary ${filterGoal === f.id ? 'active' : ''}`}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '12.5px',
+                  fontFamily: 'var(--font-mono)',
+                  background: filterGoal === f.id ? 'var(--vermilion)' : 'var(--bg-surface)',
+                  color: filterGoal === f.id ? '#fff' : 'var(--text-secondary)',
+                  border: '1px solid var(--border-hairline)',
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 12 Months Cards Grid */}
+          <div className="grid-cols-3">
         {filteredMonths.map((m) => {
           const isSelected = selectedMonth.month === m.month;
 
@@ -320,6 +391,8 @@ export const BestDatesTab: React.FC<BestDatesTabProps> = ({
           );
         })}
       </div>
+        </>
+      )}
     </div>
   );
 };
