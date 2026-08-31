@@ -1,27 +1,34 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Currency } from '@/types/travel';
+import { Currency, Language } from '@/types/travel';
+import { useI18n } from '@/utils/i18n';
 import { 
   Sparkles, 
   Clock, 
   Plus, 
   MapPin,
-  Heart
+  Heart,
+  Globe
 } from 'lucide-react';
 
 interface NavbarProps {
   currency: Currency;
   setCurrency: (c: Currency) => void;
+  language: Language;
+  setLanguage: (l: Language) => void;
   onOpenCreateModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currency,
   setCurrency,
+  language,
+  setLanguage,
   onOpenCreateModal,
 }) => {
   const [tokyoTime, setTokyoTime] = useState<string>('');
+  const t = useI18n(language);
 
   useEffect(() => {
     const updateTime = () => {
@@ -47,17 +54,17 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="ticker-left">
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontWeight: 600 }}>
             <span>🌸</span>
-            <span>ทริปญี่ปุ่น 2027</span>
+            <span>{t.tripHeaderTag}</span>
           </span>
           <span style={{ color: 'var(--text-tertiary)' }}>•</span>
           <span style={{ color: 'var(--fuji-cyan)', fontWeight: 600 }}>
-            เรทเงินเยน: 100 JPY ≈ 23.50 THB
+            {t.exchangeRate}
           </span>
         </div>
 
         <div className="ticker-right">
           <Clock size={13} color="var(--vermilion)" />
-          <span>เวลาโตเกียว:</span>
+          <span>{t.tokyoTime}</span>
           <strong style={{ color: '#fff' }}>{tokyoTime || '07:42:00'} JST</strong>
         </div>
       </div>
@@ -71,13 +78,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <div className="brand-heading">
-              <span>TOKYO TRIP 2027</span>
+              <span>{t.brandTitle}</span>
               <span className="editorial-tag tag-red hide-on-tiny" style={{ fontSize: '11px' }}>
-                🌸 Japan Vacation
+                {t.brandTag}
               </span>
             </div>
             <div className="brand-subtext">
-              <span>ชุมชนแบ่งปันและวางแผนเที่ยวญี่ปุ่นแบบเข้าใจง่าย</span>
+              <span>{t.brandSubtitle}</span>
             </div>
           </div>
         </div>
@@ -90,8 +97,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="btn-editorial-primary navbar-create-btn"
           >
             <Plus size={15} />
-            <span>+ สร้างแพลนใหม่</span>
+            <span>{t.createPlanBtn}</span>
           </button>
+
+          {/* Language Switcher */}
+          <div className="navbar-currency-toggle">
+            <button
+              onClick={() => setLanguage('th')}
+              className={`currency-btn ${language === 'th' ? 'active' : ''}`}
+              title="ภาษาไทย"
+            >
+              TH
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`currency-btn ${language === 'en' ? 'active' : ''}`}
+              title="English"
+            >
+              EN
+            </button>
+          </div>
 
           {/* Currency Toggle */}
           <div className="navbar-currency-toggle">

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import type { Attraction, HotelOption, FlightOption } from '@/types/travel';
+import type { Attraction, HotelOption, FlightOption, Language } from '@/types/travel';
 
 import 'leaflet/dist/leaflet.css';
 
@@ -128,6 +128,7 @@ interface TripMapProps {
   allAttractions: Attraction[];
   selectedSpotIds: string[];
   flight?: FlightOption;
+  language?: Language;
 }
 
 const TripMapInner: React.FC<TripMapProps> = ({
@@ -136,6 +137,7 @@ const TripMapInner: React.FC<TripMapProps> = ({
   allAttractions,
   selectedSpotIds,
   flight,
+  language = 'th',
 }) => {
   const center: [number, number] = [hotel.lat, hotel.lng];
 
@@ -190,16 +192,16 @@ const TripMapInner: React.FC<TripMapProps> = ({
         <Popup>
           <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '240px' }}>
             <div style={{ fontWeight: 800, fontSize: '14px', color: '#8b5cf6', marginBottom: '4px' }}>
-              🛫 จุดเริ่มต้นทริป: {airport.nameTh}
+              🛫 {language === 'th' ? `จุดเริ่มต้นทริป: ${airport.nameTh}` : `Trip Start: ${airport.nameEn}`}
             </div>
             <div style={{ fontSize: '12px', color: '#555', marginBottom: '6px' }}>
-              🛬 เที่ยวบิน: <strong>{flight ? `${flight.airline} (${flight.flightNumber})` : 'เที่ยวบินกรุงเทพฯ ➔ โตเกียว'}</strong>
+              🛬 {language === 'th' ? 'เที่ยวบิน:' : 'Flight:'} <strong>{flight ? `${flight.airline} (${flight.flightNumber})` : 'Bangkok ➔ Tokyo'}</strong>
             </div>
             <div style={{ background: '#f3e8ff', padding: '6px 8px', borderRadius: '6px', fontSize: '11.5px', color: '#6b21a8' }}>
-              🚆 <strong>รถไฟเข้าเมือง:</strong> {airport.expressTrainTh}
+              🚆 <strong>{language === 'th' ? 'รถไฟเข้าเมือง:' : 'Express Transit:'}</strong> {language === 'th' ? airport.expressTrainTh : (airport.code === 'HND' ? 'Tokyo Monorail / Keikyu Line' : 'Keisei Skyliner / JR N\'EX')}
             </div>
             <div style={{ marginTop: '6px', fontSize: '12px', color: '#333' }}>
-              📏 ระยะทางตรงเข้าโรงแรม: <strong>~{airportToHotelKm.toFixed(1)} กม.</strong>
+              📏 {language === 'th' ? 'ระยะทางตรงเข้าโรงแรม:' : 'Distance to Hotel:'} <strong>~{airportToHotelKm.toFixed(1)} km</strong>
             </div>
           </div>
         </Popup>
@@ -210,14 +212,14 @@ const TripMapInner: React.FC<TripMapProps> = ({
         <Popup>
           <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '220px' }}>
             <div style={{ fontWeight: 800, fontSize: '14px', color: '#ff3366', marginBottom: '4px' }}>
-              🏨 ฐานที่พัก: {hotel.nameTh}
+              🏨 {language === 'th' ? `ฐานที่พัก: ${hotel.nameTh}` : `Hotel Base: ${hotel.nameEn}`}
             </div>
             <div style={{ color: '#666', fontSize: '12px' }}>
-              📍 {hotel.areaTh}<br />
-              🚇 {hotel.nearestStation} (เดิน {hotel.walkMinutesToStation} นาที)
+              📍 {language === 'th' ? hotel.areaTh : hotel.area}<br />
+              🚇 {hotel.nearestStation} ({language === 'th' ? `เดิน ${hotel.walkMinutesToStation} นาที` : `${hotel.walkMinutesToStation} min walk`})
             </div>
             <div style={{ marginTop: '6px', fontSize: '12px', color: '#38bdf8' }}>
-              🛫 รับจากสนามบิน: ~{airportToHotelKm.toFixed(1)} กม.
+              🛫 {language === 'th' ? 'รับจากสนามบิน:' : 'From Airport:'} ~{airportToHotelKm.toFixed(1)} km
             </div>
           </div>
         </Popup>
@@ -232,7 +234,7 @@ const TripMapInner: React.FC<TripMapProps> = ({
             <Popup>
               <div style={{ fontFamily: 'system-ui', fontSize: '13px', minWidth: '220px' }}>
                 <div style={{ fontWeight: 800, fontSize: '14px', marginBottom: '4px' }}>
-                  📍 {a.nameTh.split('(')[0].trim()}
+                  📍 {language === 'th' ? a.nameTh.split('(')[0].trim() : a.nameEn}
                 </div>
                 <div style={{ color: '#666', fontSize: '12px', marginBottom: '6px' }}>
                   {a.nameEn} • {a.area}
@@ -245,12 +247,12 @@ const TripMapInner: React.FC<TripMapProps> = ({
                   fontWeight: 600,
                   display: 'inline-block',
                 }}>
-                  {isSelected ? '✅ อยู่ในทริป' : '⏳ ยังไม่ได้เลือก'}
+                  {isSelected ? (language === 'th' ? '✅ อยู่ในทริป' : '✅ In Trip') : (language === 'th' ? '⏳ ยังไม่ได้เลือก' : '⏳ Not Selected')}
                 </div>
                 <div style={{ marginTop: '6px', fontSize: '12px', color: '#444' }}>
-                  📏 ห่างจากโรงแรม: <strong>{dist.toFixed(1)} กม.</strong><br />
+                  📏 {language === 'th' ? 'ห่างจากโรงแรม:' : 'From Hotel:'} <strong>{dist.toFixed(1)} km</strong><br />
                   🚇 {a.nearestStation}<br />
-                  ⏱️ ใช้เวลาเที่ยว: ~{a.estimatedTimeHours} ชม.
+                  ⏱️ {language === 'th' ? 'ใช้เวลาเที่ยว:' : 'Est. Duration:'} ~{a.estimatedTimeHours} {language === 'th' ? 'ชม.' : 'hrs'}
                 </div>
               </div>
             </Popup>

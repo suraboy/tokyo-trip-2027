@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CommunityTripPlan, Currency } from '@/types/travel';
+import { CommunityTripPlan, Currency, Language } from '@/types/travel';
 import { MONTHS_DATA, JPY_TO_THB_RATE } from '@/data/mockData';
+import { useI18n } from '@/utils/i18n';
 import { 
   Users, 
   MapPin, 
@@ -21,6 +22,7 @@ interface CommunityPlansSectionProps {
   onOpenCreateModal: () => void;
   onSelectTripForDetail: (trip: CommunityTripPlan) => void;
   currency: Currency;
+  language: Language;
 }
 
 export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
@@ -28,10 +30,12 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
   onOpenCreateModal,
   onSelectTripForDetail,
   currency,
+  language,
 }) => {
   const [filterDuration, setFilterDuration] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [likedTripIds, setLikedTripIds] = useState<string[]>([]);
+  const t = useI18n(language);
 
   const handleToggleLike = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -60,8 +64,8 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
 
   const formatPrice = (thb?: number) => {
     if (!thb) return '-';
-    if (currency === 'THB') return `฿${thb.toLocaleString()} บาท`;
-    return `¥${Math.round(thb / JPY_TO_THB_RATE).toLocaleString()} เยน`;
+    if (currency === 'THB') return `฿${thb.toLocaleString()} ${language === 'th' ? 'บาท' : 'THB'}`;
+    return `¥${Math.round(thb / JPY_TO_THB_RATE).toLocaleString()} ${language === 'th' ? 'เยน' : 'JPY'}`;
   };
 
   const getMonthSeasonEmoji = (monthNum: number) => {
@@ -79,17 +83,17 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <span className="editorial-tag tag-cyan">
-                <Users size={12} /> ชุมชนนักเดินทาง (Community Feed)
+                <Users size={12} /> {t.communitySectionTitle}
               </span>
               <span className="editorial-tag tag-red">
-                {plans.length} แพลนทั้งหมด
+                {plans.length} {language === 'th' ? 'แพลนทั้งหมด' : 'Total Plans'}
               </span>
             </div>
             <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
-              รวมไอเดียแพลนเที่ยวญี่ปุ่น 2027
+              {t.communitySectionTitle}
             </h3>
             <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)' }}>
-              ดูแพลนของคนอื่นเพื่อเก็บไอเดีย หรือกดสร้างแพลนของตัวเองได้ง่ายๆ
+              {t.communitySectionSubtitle}
             </p>
           </div>
 
@@ -98,7 +102,7 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
             className="btn-editorial-primary"
           >
             <Plus size={16} />
-            <span>+ สร้างแพลนใหม่</span>
+            <span>{t.createPlanBtn}</span>
           </button>
         </div>
 
@@ -119,7 +123,7 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
             <Search size={15} color="var(--text-tertiary)" style={{ position: 'absolute', left: '14px' }} />
             <input
               type="text"
-              placeholder="ค้นหาชื่อแพลน, ที่เที่ยว (เช่น ฟูจิ, ชิบูย่า, ซากุระ)..."
+              placeholder={t.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -138,10 +142,10 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
           {/* Lifestyle Duration Pills */}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {[
-              { id: 'all', label: '🔥 ทั้งหมด' },
-              { id: 'short', label: '⚡ 3-5 วัน (วันลาน้อย)' },
-              { id: 'medium', label: '🗼 6-8 วัน (โตเกียว+ฟูจิ)' },
-              { id: 'long', label: '🚄 9+ วัน (ข้ามเมือง)' },
+              { id: 'all', label: t.filterAll },
+              { id: 'short', label: t.filterShort },
+              { id: 'medium', label: t.filterMedium },
+              { id: 'long', label: t.filterLong },
             ].map((f) => (
               <button
                 key={f.id}
@@ -175,10 +179,10 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
         >
           <div style={{ fontSize: '36px' }}>🗾</div>
           <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
-            ยังไม่มีแพลนท่องเที่ยวในระบบ
+            {t.emptyTitle}
           </h4>
           <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '480px', lineHeight: '1.6' }}>
-            ร่วมเป็นคนแรกที่สร้างและแชร์แพลนท่องเที่ยวญี่ปุ่น 2027 ลงในชุมชน!
+            {t.emptyDesc}
           </p>
           <button
             onClick={onOpenCreateModal}
@@ -186,7 +190,7 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
             style={{ padding: '10px 24px', marginTop: '6px' }}
           >
             <Plus size={16} />
-            <span>+ สร้างแพลนแรกของคุณ</span>
+            <span>{t.createPlanBtn}</span>
           </button>
         </div>
       ) : (
@@ -196,6 +200,7 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
             const seasonEmoji = getMonthSeasonEmoji(plan.target_month);
             const isLiked = likedTripIds.includes(plan.id);
             const likesCount = (plan.likes_count || 0) + (isLiked ? 1 : 0);
+            const monthName = language === 'th' ? (monthObj?.nameTh || `เดือน ${plan.target_month}`) : (monthObj?.nameEn || `Month ${plan.target_month}`);
 
             return (
               <div
@@ -218,10 +223,10 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
                         🎒 @{plan.creator_name}
                       </span>
                       <span className="editorial-tag tag-red" style={{ fontSize: '11px' }}>
-                        ⏱️ {plan.duration_days} วัน
+                        ⏱️ {plan.duration_days} {t.daysUnit}
                       </span>
                       <span className="editorial-tag tag-gold" style={{ fontSize: '11px' }}>
-                        {seasonEmoji} {monthObj?.nameTh || `เดือน ${plan.target_month}`} {plan.target_year}
+                        {seasonEmoji} {monthName} {plan.target_year}
                       </span>
                     </div>
 
@@ -262,7 +267,7 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
                   {/* Destinations Pills */}
                   <div style={{ marginBottom: '14px' }}>
                     <div style={{ fontSize: '11.5px', color: 'var(--text-tertiary)', marginBottom: '6px', fontWeight: 600 }}>
-                      สถานที่ในทริปนี้ ({plan.destinations.length} แห่ง):
+                      {t.spotsInTrip(plan.destinations.length)}
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {plan.destinations.slice(0, 4).map((dest, idx) => (
@@ -282,7 +287,7 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
                       ))}
                       {plan.destinations.length > 4 && (
                         <span style={{ padding: '4px 10px', fontSize: '12px', color: 'var(--fuji-cyan)', fontWeight: 600 }}>
-                          +{plan.destinations.length - 4} อื่นๆ
+                          {t.moreSpots(plan.destinations.length - 4)}
                         </span>
                       )}
                     </div>
@@ -303,11 +308,11 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
                   }}
                 >
                   <div style={{ fontSize: '13px', color: '#34d399', fontWeight: 700 }}>
-                    งบประมาณ: {formatPrice(plan.estimated_budget_thb)}
+                    {t.estBudget} {formatPrice(plan.estimated_budget_thb)}
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--vermilion)', fontSize: '12.5px', fontWeight: 700 }}>
-                    <span>🚀 เปิด Dashboard แพลนนี้</span>
+                    <span>{t.openDashboardBtn}</span>
                     <ArrowUpRight size={15} />
                   </div>
                 </div>

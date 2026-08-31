@@ -1,6 +1,7 @@
 export type TabType = 'overview' | 'dates' | 'flights' | 'attractions' | 'itinerary' | 'wayfinder' | 'workspace';
 
 export type Currency = 'THB' | 'JPY';
+export type Language = 'th' | 'en';
 
 export interface MonthData {
   month: number;

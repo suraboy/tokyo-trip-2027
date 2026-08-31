@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Attraction, Currency } from '@/types/travel';
+import { Attraction, Currency, Language } from '@/types/travel';
 import { JPY_TO_THB_RATE } from '@/data/mockData';
 import { X, Clock, Train, Heart, CheckCircle2, DollarSign, Star } from 'lucide-react';
 
@@ -9,6 +9,7 @@ interface AttractionModalProps {
   attraction: Attraction | null;
   onClose: () => void;
   currency: Currency;
+  language?: Language;
   isWishlisted: boolean;
   onToggleWishlist: (id: string) => void;
 }
@@ -17,6 +18,7 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
   attraction,
   onClose,
   currency,
+  language = 'th',
   isWishlisted,
   onToggleWishlist,
 }) => {
@@ -24,7 +26,7 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
 
   const displayPrice =
     attraction.priceJPY === 0
-      ? 'FREE ENTRY'
+      ? (language === 'th' ? 'เข้าชมฟรี (FREE)' : 'FREE ENTRY')
       : currency === 'THB'
       ? `฿${Math.round(attraction.priceJPY * JPY_TO_THB_RATE).toLocaleString()} THB (¥${attraction.priceJPY.toLocaleString()})`
       : `¥${attraction.priceJPY.toLocaleString()} JPY`;

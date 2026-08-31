@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Language } from '@/types/travel';
+import { useI18n } from '@/utils/i18n';
 import { 
   X, 
   Sparkles, 
@@ -11,24 +13,27 @@ import {
 
 interface CreateTripModalProps {
   isOpen: boolean;
+  language: Language;
   onClose: () => void;
   onStartWorkspace: (title: string, creator: string) => void;
 }
 
 export const CreateTripModal: React.FC<CreateTripModalProps> = ({
   isOpen,
+  language,
   onClose,
   onStartWorkspace,
 }) => {
   const [tripTitle, setTripTitle] = useState<string>('ทริปโตเกียว & ฟูจิ 2027');
   const [creatorName, setCreatorName] = useState<string>('SuraBoy');
+  const t = useI18n(language);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!tripTitle.trim() || !creatorName.trim()) {
-      alert('กรุณากรอกชื่อแพลนเที่ยว และชื่อของคุณ');
+      alert(language === 'th' ? 'กรุณากรอกชื่อแพลนเที่ยว และชื่อของคุณ' : 'Please fill in both trip title and your name.');
       return;
     }
     onStartWorkspace(tripTitle.trim(), creatorName.trim());
@@ -47,14 +52,14 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <span className="editorial-tag tag-red">
-                <Sparkles size={11} /> 1-STEP QUICK START
+                <Sparkles size={11} /> {t.modalTag1}
               </span>
               <span className="editorial-tag tag-cyan">
-                🌸 TOKYO EXPEDITION
+                {t.modalTag2}
               </span>
             </div>
             <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
-              เริ่มต้นวางแผนทริปญี่ปุ่น 2027
+              {t.modalTitle}
             </h2>
           </div>
 
@@ -78,19 +83,19 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
         </div>
 
         <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '22px' }}>
-          กรอกเพียง 2 ช่องเพื่อเปิด Dashboard วางแผน: เลือกที่เที่ยวใกล้โตเกียว ดูระยะทางจากที่พัก และเทียบตั๋วเครื่องบินราคาดีที่สุด
+          {t.modalDesc}
         </p>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           {/* Trip Title */}
           <div>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>
-              ✏️ ตั้งชื่อแพลนเที่ยวของคุณ *
+              {t.fieldTripTitle}
             </label>
             <input
               type="text"
               required
-              placeholder="เช่น ทริปโตเกียว-ฟูจิ ใบไม้เปลี่ยนสี 7 วัน, ทริปครอบครัว..."
+              placeholder={t.fieldTripTitlePlaceholder}
               value={tripTitle}
               onChange={(e) => setTripTitle(e.target.value)}
               style={{
@@ -109,12 +114,12 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
           {/* Creator Name */}
           <div>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>
-              🎒 ชื่อของคุณ / นามแฝง *
+              {t.fieldCreator}
             </label>
             <input
               type="text"
               required
-              placeholder="เช่น SuraBoy, NekoTraveler"
+              placeholder={t.fieldCreatorPlaceholder}
               value={creatorName}
               onChange={(e) => setCreatorName(e.target.value)}
               style={{
@@ -137,7 +142,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               className="btn-editorial-primary"
               style={{ flex: 1, padding: '12px 20px', fontSize: '14px', justifyContent: 'center' }}
             >
-              <span>ไปยัง Dashboard วางแผนทริป</span>
+              <span>{t.modalSubmitBtn}</span>
               <ArrowRight size={16} />
             </button>
           </div>

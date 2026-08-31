@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { MonthData, Currency } from '@/types/travel';
+import { MonthData, Currency, Language } from '@/types/travel';
 import { MONTHS_DATA, JPY_TO_THB_RATE } from '@/data/mockData';
+import { useI18n } from '@/utils/i18n';
 import {
   ChevronLeft,
   ChevronRight,
@@ -25,6 +26,7 @@ interface InteractiveFlightCalendarProps {
   selectedRange: { start: string; end: string };
   onSelectRange: (range: { start: string; end: string }, durationDays: number) => void;
   currency?: Currency;
+  language?: Language;
 }
 
 // Special events & season milestones across 2026-2028

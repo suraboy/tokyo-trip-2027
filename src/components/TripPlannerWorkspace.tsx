@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Attraction, FlightOption, HotelOption, Currency, CommunityTripPlan, MonthData } from '@/types/travel';
+import { Attraction, FlightOption, HotelOption, Currency, Language, CommunityTripPlan, MonthData } from '@/types/travel';
 import { ATTRACTIONS_DATA, FLIGHT_OPTIONS, HOTEL_OPTIONS, MONTHS_DATA, JPY_TO_THB_RATE, calculateTransitFromHotel } from '@/data/mockData';
 import {
   ArrowLeft,
@@ -41,10 +41,13 @@ import {
   getGoogleHotelsSearchUrl,
 } from '@/utils/bookingLinks';
 
+import { useI18n } from '@/utils/i18n';
+
 interface TripPlannerWorkspaceProps {
   tripTitle: string;
   creatorName: string;
   currency: Currency;
+  language: Language;
   initialPlan?: CommunityTripPlan | null;
   onBackToHome: () => void;
   onSaveTrip: (plan: Partial<CommunityTripPlan>) => Promise<void>;
@@ -54,10 +57,12 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
   tripTitle,
   creatorName,
   currency,
+  language,
   initialPlan,
   onBackToHome,
   onSaveTrip,
 }) => {
+  const t = useI18n(language);
   // Step workflow sequence: dates -> flights -> hotels -> attractions -> map
   const [activeSection, setActiveSection] = useState<'dates' | 'flights' | 'hotels' | 'attractions' | 'map'>('dates');
   const [datesViewMode, setDatesViewMode] = useState<'calendar' | 'matrix'>('calendar');
@@ -337,7 +342,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
             aria-label="Back to home"
           >
             <ArrowLeft size={16} />
-            <span>กลับหน้าหลัก</span>
+            <span>{t.backHomeBtn}</span>
           </button>
 
           <div>
@@ -346,16 +351,16 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
                 🎒 @{creatorName}
               </span>
               <span className="editorial-tag tag-gold" style={{ fontSize: '11.5px' }}>
-                📅 {selectedMonth.nameTh} 2027 ({durationDays} วัน)
+                📅 {language === 'th' ? selectedMonth.nameTh : selectedMonth.nameEn} 2027 ({durationDays} {t.daysUnit})
               </span>
               <span className="editorial-tag tag-cyan" style={{ fontSize: '11.5px' }}>
                 ✈️ {selectedFlight.airlineCode} • {formatPrice(selectedFlight.basePriceTHB)}
               </span>
               <span className="editorial-tag tag-green" style={{ fontSize: '11.5px' }}>
-                🏨 {selectedHotel.areaTh.split('(')[0]}
+                🏨 {language === 'th' ? selectedHotel.areaTh.split('(')[0] : selectedHotel.area}
               </span>
               <span className="editorial-tag tag-purple" style={{ fontSize: '11.5px' }}>
-                📍 {selectedSpotIds.length} จุดเช็คอิน
+                📍 {t.spotsChecked(selectedSpotIds.length)}
               </span>
             </div>
             <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
@@ -372,7 +377,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
           aria-label="Save trip plan to database"
         >
           <Save size={16} />
-          <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกแผนทริปลงระบบ'}</span>
+          <span>{isSaving ? t.savingBtn : t.savePlanBtn}</span>
         </button>
       </div>
 
@@ -387,11 +392,11 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
         }}
       >
         {[
-          { id: 'dates', label: '1. ปฏิทินเลือกวัน & ตั๋วบิน', icon: <Calendar size={16} />, badge: selectedMonth.nameTh },
-          { id: 'flights', label: '2. เที่ยวบินราคาดีที่สุด', icon: <Plane size={16} />, badge: formatPrice(selectedFlight.basePriceTHB) },
-          { id: 'hotels', label: '3. เลือกที่พักราคาดีที่สุด', icon: <Hotel size={16} />, badge: selectedHotel.area },
-          { id: 'attractions', label: '4. สถานที่ท่องเที่ยว & ใกล้โตเกียว', icon: <MapPin size={16} />, badge: `${selectedSpotIds.length}` },
-          { id: 'map', label: '5. แผนที่ & ระยะทาง', icon: <Navigation size={16} /> },
+          { id: 'dates', label: t.step1Title, icon: <Calendar size={16} />, badge: language === 'th' ? selectedMonth.nameTh : selectedMonth.nameEn },
+          { id: 'flights', label: t.step2Title, icon: <Plane size={16} />, badge: formatPrice(selectedFlight.basePriceTHB) },
+          { id: 'hotels', label: t.step3Title, icon: <Hotel size={16} />, badge: selectedHotel.area },
+          { id: 'attractions', label: t.step4Title, icon: <MapPin size={16} />, badge: `${selectedSpotIds.length}` },
+          { id: 'map', label: t.step5Title, icon: <Navigation size={16} /> },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -558,6 +563,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
                 setDurationDays(days);
               }}
               currency={currency}
+              language={language}
             />
           )}
 
@@ -1848,6 +1854,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
               allAttractions={allAttractions}
               selectedSpotIds={selectedSpotIds}
               flight={selectedFlight}
+              language={language}
             />
 
             {/* Distance Legend */}
@@ -1860,11 +1867,18 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
               color: 'var(--text-secondary)',
               alignItems: 'center',
             }}>
-              <span style={{ color: '#8b5cf6', fontWeight: 700 }}>🛫 = จุดเริ่มต้นทริป ({selectedFlight.to === 'HND' ? 'สนามบินฮาเนดะ HND' : 'สนามบินนาริตะ NRT'})</span>
-              <span style={{ color: '#38bdf8', fontWeight: 700 }}>--- = ขาที่ 0: เส้นทางเข้าเมืองสู่ที่พัก</span>
-              <span style={{ color: '#ff3366', fontWeight: 700 }}>🏨 = ฐานที่พัก ({selectedHotel.nameTh})</span>
-              <span style={{ color: '#10b981', fontWeight: 700 }}>● = สถานที่ในทริป</span>
-              <span style={{ color: '#ff6584' }}>--- = เส้นทางเที่ยวประจำวัน</span>
+              <span style={{ color: '#8b5cf6', fontWeight: 700 }}>
+                🛫 = {language === 'th' ? `จุดเริ่มต้นทริป (${selectedFlight.to === 'HND' ? 'สนามบินฮาเนดะ HND' : 'สนามบินนาริตะ NRT'})` : `Trip Start (${selectedFlight.to === 'HND' ? 'Haneda HND' : 'Narita NRT'})`}
+              </span>
+              <span style={{ color: '#38bdf8', fontWeight: 700 }}>
+                --- = {language === 'th' ? 'ขาที่ 0: เส้นทางเข้าเมืองสู่ที่พัก' : 'Leg 0: Airport to Hotel Transfer'}
+              </span>
+              <span style={{ color: '#ff3366', fontWeight: 700 }}>
+                🏨 = {language === 'th' ? `ฐานที่พัก (${selectedHotel.nameTh})` : `Hotel Base (${selectedHotel.nameEn})`}
+              </span>
+              <span style={{ color: '#10b981', fontWeight: 700 }}>
+                ● = {language === 'th' ? 'สถานที่ในทริป' : 'Trip Spots'}
+              </span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>

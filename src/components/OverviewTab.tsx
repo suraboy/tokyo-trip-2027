@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Currency, CommunityTripPlan } from '@/types/travel';
+import { Currency, Language, CommunityTripPlan } from '@/types/travel';
 import { CommunityPlansSection } from '@/components/CommunityPlansSection';
+import { useI18n } from '@/utils/i18n';
 import { 
   Sparkles, 
   Plus, 
@@ -15,6 +16,7 @@ import {
 
 interface OverviewTabProps {
   currency: Currency;
+  language: Language;
   communityPlans: CommunityTripPlan[];
   onOpenCreateModal: () => void;
   onSelectTripForDetail: (trip: CommunityTripPlan) => void;
@@ -22,10 +24,13 @@ interface OverviewTabProps {
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({
   currency,
+  language,
   communityPlans,
   onOpenCreateModal,
   onSelectTripForDetail,
 }) => {
+  const t = useI18n(language);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Cozy Onboarding Hero Banner */}
@@ -42,32 +47,31 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '780px' }}>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
             <span className="editorial-tag tag-red">
-              <Sparkles size={12} /> วางแผนเที่ยวญี่ปุ่น 2027
+              <Sparkles size={12} /> {t.heroTag1}
             </span>
             <span className="editorial-tag tag-cyan">
-              🗾 โตเกียว • ฟูจิ • คันไซ
+              {t.heroTag2}
             </span>
             <span className="editorial-tag tag-green">
-              ✨ มี {communityPlans.length} แพลนในระบบ
+              ✨ {t.heroTag3(communityPlans.length)}
             </span>
           </div>
 
           <h1 className="hero-title">
-            สร้างแพลนท่องเที่ยวของคุณง่ายๆ <br />
+            {t.heroTitleLine1} <br />
             <span style={{ color: 'var(--vermilion)' }}>
-              และค้นหาแรงบันดาลใจจากเพื่อนๆ ในชุมชน
+              {t.heroTitleLine2}
             </span>
           </h1>
 
           <p className="hero-desc">
-            อยากไปเที่ยวญี่ปุ่นกี่วัน? ไปช่วงซากุระหรือใบไม้เปลี่ยนสี? 
-            ปักหมุดสถานที่ที่คุณอยากไป แล้วสร้างแพลนสวยๆ แชร์ให้เพื่อนหรือครอบครัวดูได้ทันที
+            {t.heroDesc}
           </p>
 
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
             <button onClick={onOpenCreateModal} className="btn-editorial-primary" style={{ padding: '11px 22px', fontSize: '13.5px' }}>
               <Plus size={16} />
-              <span>+ เริ่มสร้างแพลนเที่ยวของคุณ</span>
+              <span>{t.heroCta}</span>
             </button>
           </div>
         </div>
@@ -79,6 +83,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         onOpenCreateModal={onOpenCreateModal}
         onSelectTripForDetail={onSelectTripForDetail}
         currency={currency}
+        language={language}
       />
     </div>
   );

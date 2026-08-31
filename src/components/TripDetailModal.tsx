@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { CommunityTripPlan, Currency } from '@/types/travel';
+import { CommunityTripPlan, Currency, Language } from '@/types/travel';
 import { MONTHS_DATA, JPY_TO_THB_RATE } from '@/data/mockData';
 import { 
   X, 
@@ -19,12 +19,14 @@ interface TripDetailModalProps {
   trip: CommunityTripPlan | null;
   onClose: () => void;
   currency: Currency;
+  language?: Language;
 }
 
 export const TripDetailModal: React.FC<TripDetailModalProps> = ({
   trip,
   onClose,
   currency,
+  language = 'th',
 }) => {
   if (!trip) return null;
 
@@ -34,8 +36,8 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
 
   const displayBudget =
     currency === 'THB'
-      ? `฿${budgetTHB.toLocaleString()} บาท`
-      : `¥${budgetJPY.toLocaleString()} เยน`;
+      ? `฿${budgetTHB.toLocaleString()} ${language === 'th' ? 'บาท' : 'THB'}`
+      : `¥${budgetJPY.toLocaleString()} ${language === 'th' ? 'เยน' : 'JPY'}`;
 
   const seasonEmoji = [3, 4].includes(trip.target_month) ? '🌸' : [10, 11].includes(trip.target_month) ? '🍁' : [12, 1, 2].includes(trip.target_month) ? '❄️' : '🌿';
 

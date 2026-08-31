@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import React from 'react';
-import type { Attraction, HotelOption, FlightOption } from '@/types/travel';
+import type { Attraction, HotelOption, FlightOption, Language } from '@/types/travel';
 
 const TripMapInner = dynamic(() => import('./TripMapInner'), {
   ssr: false,
@@ -33,6 +33,7 @@ interface TripMapProps {
   allAttractions: Attraction[];
   selectedSpotIds: string[];
   flight?: FlightOption;
+  language?: Language;
 }
 
 const TripMap: React.FC<TripMapProps> = (props) => {

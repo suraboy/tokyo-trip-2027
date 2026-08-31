@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Currency, CommunityTripPlan } from '@/types/travel';
+import { Currency, Language, CommunityTripPlan } from '@/types/travel';
 import { Navbar } from '@/components/Navbar';
 import { OverviewTab } from '@/components/OverviewTab';
 import { CreateTripModal } from '@/components/CreateTripModal';
@@ -9,6 +9,7 @@ import { TripPlannerWorkspace } from '@/components/TripPlannerWorkspace';
 
 export default function Home() {
   const [currency, setCurrency] = useState<Currency>('THB');
+  const [language, setLanguage] = useState<Language>('th');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Community Trip Plans State from DB
@@ -126,6 +127,8 @@ export default function Home() {
       <Navbar
         currency={currency}
         setCurrency={setCurrency}
+        language={language}
+        setLanguage={setLanguage}
         onOpenCreateModal={() => setIsCreateModalOpen(true)}
       />
 
@@ -138,12 +141,14 @@ export default function Home() {
             creatorName={workspaceCreatorName}
             initialPlan={activeWorkspacePlan}
             currency={currency}
+            language={language}
             onBackToHome={() => setIsWorkspaceActive(false)}
             onSaveTrip={handleSaveTripFromWorkspace}
           />
         ) : (
           <OverviewTab
             currency={currency}
+            language={language}
             communityPlans={communityPlans}
             onOpenCreateModal={() => setIsCreateModalOpen(true)}
             onSelectTripForDetail={handleOpenPlanInWorkspace}
@@ -154,6 +159,7 @@ export default function Home() {
       {/* 1-Step Quick Start Modal */}
       <CreateTripModal
         isOpen={isCreateModalOpen}
+        language={language}
         onClose={() => setIsCreateModalOpen(false)}
         onStartWorkspace={handleStartNewWorkspace}
       />
