@@ -187,7 +187,7 @@ export const WayfinderRoadmapTab: React.FC<WayfinderRoadmapTabProps> = ({
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
+                <div className="grid-cols-2" style={{ gap: '14px' }}>
                   <div style={{ padding: '12px 14px', background: 'var(--bg-surface-raised)', borderRadius: 'var(--radius-xs)', border: '1px solid var(--border-hairline)' }}>
                     <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', marginBottom: '3px' }}>
                       // CURRENT CONCLUSION

@@ -98,12 +98,11 @@ export const BestDatesTab: React.FC<BestDatesTabProps> = ({
 
         {/* Top 3 Benchmark Windows */}
         <div
+          className="grid-cols-3"
           style={{
             marginTop: '24px',
             paddingTop: '20px',
             borderTop: '1px solid var(--border-hairline)',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '14px',
           }}
         >
@@ -323,7 +322,7 @@ export const BestDatesTab: React.FC<BestDatesTabProps> = ({
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
                     gap: '8px',
                     padding: '10px 12px',
                     background: 'var(--bg-surface-raised)',

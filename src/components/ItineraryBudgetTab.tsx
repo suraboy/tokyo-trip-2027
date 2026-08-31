@@ -105,12 +105,11 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
 
         {/* Sliders Grid */}
         <div
+          className="grid-cols-4"
           style={{
             marginTop: '24px',
             paddingTop: '20px',
             borderTop: '1px solid var(--border-hairline)',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '16px',
           }}
         >

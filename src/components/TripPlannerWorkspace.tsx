@@ -378,14 +378,12 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
 
       {/* Navigation Tabs Bar - Sequential Workflow Order */}
       <div
+        className="step-nav-bar"
         style={{
-          display: 'flex',
-          gap: '8px',
           background: 'var(--bg-surface)',
           padding: '8px',
           borderRadius: 'var(--radius-pill)',
           border: '1px solid var(--border-hairline)',
-          flexWrap: 'wrap',
         }}
       >
         {[
@@ -398,6 +396,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
           <button
             key={tab.id}
             onClick={() => setActiveSection(tab.id as any)}
+            className="step-nav-item"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -776,7 +775,7 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
                     background: isSelected ? 'linear-gradient(135deg, rgba(255, 101, 132, 0.08) 0%, var(--bg-surface) 100%)' : 'var(--bg-surface)',
                   }}
                 >
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 2fr 1fr 1fr', gap: '16px', alignItems: 'center' }}>
+                  <div className="responsive-flight-card">
                     {/* Airline info */}
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -2049,11 +2048,8 @@ export const TripPlannerWorkspace: React.FC<TripPlannerWorkspaceProps> = ({
                 return (
                   <div
                     key={spot.id}
+                    className="responsive-transit-row"
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1.4fr 1fr 1.6fr 0.8fr',
-                      gap: '14px',
-                      alignItems: 'center',
                       padding: '14px 18px',
                       background: 'var(--bg-surface-raised)',
                       border: '1px solid var(--border-hairline)',

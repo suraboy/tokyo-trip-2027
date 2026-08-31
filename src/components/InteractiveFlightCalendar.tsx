@@ -711,208 +711,214 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
           </div>
         )}
 
-        {/* Days of Week Header */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: '6px',
-            marginBottom: '8px',
-          }}
-        >
-          {daysOfWeek.map((dayName, idx) => (
+        {/* Days Calendar Wrapper */}
+        {/* Days Calendar Wrapper */}
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', minWidth: 0, paddingBottom: '4px' }}>
+          <div style={{ minWidth: '340px' }}>
+            {/* Days of Week Header */}
             <div
-              key={idx}
               style={{
-                textAlign: 'center',
-                padding: '6px 0',
-                fontSize: '11.5px',
-                fontWeight: 700,
-                color: idx === 0 || idx === 6 ? '#f472b6' : 'var(--text-secondary)',
-                background: 'rgba(255, 255, 255, 0.02)',
-                borderRadius: '6px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                gap: '6px',
+                marginBottom: '8px',
               }}
             >
-              {dayName}
-            </div>
-          ))}
-        </div>
-
-        {/* Days Calendar Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: '6px',
-          }}
-        >
-          {calendarDays.map((dayItem, idx) => {
-            if (!dayItem) {
-              return (
+              {daysOfWeek.map((dayName, idx) => (
                 <div
-                  key={`empty-${idx}`}
+                  key={idx}
                   style={{
-                    height: '84px',
-                    borderRadius: '10px',
-                    background: 'rgba(255, 255, 255, 0.01)',
+                    textAlign: 'center',
+                    padding: '6px 0',
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    color: idx === 0 || idx === 6 ? '#f472b6' : 'var(--text-secondary)',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    borderRadius: '6px',
                   }}
-                />
-              );
-            }
-
-            const { dateStr, day, dayOfWeek, isPast, isToday, roundTripPrice, priceTier, specialEvent } = dayItem;
-            const isStart = isRangeStart(dateStr);
-            const isEnd = isRangeEnd(dateStr);
-            const inRange = isInRange(dateStr);
-            const inHover = isInHoverRange(dateStr);
-            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-            const tripInfo = getTripDayInfo(dateStr);
-
-            // Price color
-            let priceColor = '#34d399';
-            if (priceTier === 'mid') priceColor = '#38bdf8';
-            if (priceTier === 'high') priceColor = '#f59e0b';
-            if (priceTier === 'peak') priceColor = '#ef4444';
-
-            // Highlighting style determination
-            let cellBorder = '1px solid var(--border-hairline)';
-            let cellBg = 'var(--bg-surface-raised)';
-            let cellShadow = 'none';
-            let cellTransform = 'none';
-            let cellZIndex = 1;
-
-            if (isStart) {
-              cellBorder = '3px solid #ffffff';
-              cellBg = 'linear-gradient(135deg, #ff0055 0%, #d50000 100%)';
-              cellShadow = '0 0 22px rgba(255, 0, 85, 0.85), 0 4px 14px rgba(0,0,0,0.6)';
-              cellTransform = 'scale(1.03)';
-              cellZIndex = 4;
-            } else if (isEnd) {
-              cellBorder = '3px solid #ffffff';
-              cellBg = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)';
-              cellShadow = '0 0 22px rgba(2, 132, 199, 0.85), 0 4px 14px rgba(0,0,0,0.6)';
-              cellTransform = 'scale(1.03)';
-              cellZIndex = 4;
-            } else if (inRange) {
-              cellBorder = '2px solid #ff4d6d';
-              cellBg = 'linear-gradient(180deg, rgba(255, 77, 109, 0.55) 0%, rgba(225, 29, 72, 0.4) 100%)';
-              cellShadow = 'inset 0 0 14px rgba(255, 77, 109, 0.4), 0 0 10px rgba(255, 77, 109, 0.35)';
-              cellZIndex = 2;
-            } else if (inHover) {
-              cellBorder = '2px dashed #ff4d6d';
-              cellBg = 'rgba(255, 77, 109, 0.3)';
-              cellShadow = '0 0 12px rgba(255, 77, 109, 0.4)';
-              cellZIndex = 2;
-            } else if (isToday) {
-              cellBorder = '1.5px solid #38bdf8';
-              cellBg = 'rgba(56, 189, 248, 0.08)';
-            }
-
-            return (
-              <div
-                key={dateStr}
-                onClick={() => handleDateClick(dateStr, isPast)}
-                onMouseEnter={() => !isPast && setHoverDate(dateStr)}
-                onMouseLeave={() => setHoverDate(null)}
-                style={{
-                  height: '84px',
-                  borderRadius: '10px',
-                  padding: '8px 6px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  cursor: isPast ? 'not-allowed' : 'pointer',
-                  opacity: isPast ? 0.35 : 1,
-                  position: 'relative',
-                  border: cellBorder,
-                  background: cellBg,
-                  boxShadow: cellShadow,
-                  transform: cellTransform,
-                  zIndex: cellZIndex,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {/* Top Row: Date number + Badges */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <span
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 800,
-                      color: isStart || isEnd || inRange ? '#fff' : isWeekend ? '#f472b6' : '#fff',
-                      textShadow: isStart || isEnd || inRange ? '0 1px 3px rgba(0,0,0,0.6)' : 'none',
-                    }}
-                  >
-                    {day}
-                  </span>
-
-                  {isToday && !isStart && !isEnd && !inRange && (
-                    <span style={{ fontSize: '9px', background: '#38bdf8', color: '#000', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>
-                      วันนี้
-                    </span>
-                  )}
-                  {isStart && (
-                    <span style={{ fontSize: '9px', background: '#fff', color: '#d50000', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-                      🛫 วันไป
-                    </span>
-                  )}
-                  {isEnd && !isStart && (
-                    <span style={{ fontSize: '9px', background: '#fff', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-                      🛬 วันกลับ
-                    </span>
-                  )}
-                  {inRange && tripInfo && (
-                    <span style={{ fontSize: '8.5px', background: '#ff4d6d', color: '#fff', padding: '1px 5px', borderRadius: '3px', fontWeight: 900 }}>
-                      ✨ วันที่ {tripInfo.dayIdx}/{tripInfo.totalDays}
-                    </span>
-                  )}
+                >
+                  {dayName}
                 </div>
+              ))}
+            </div>
 
-                {/* Event tag if available */}
-                {specialEvent && !isPast && (
+            {/* Days Calendar Grid */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                gap: '6px',
+              }}
+            >
+              {calendarDays.map((dayItem, idx) => {
+                if (!dayItem) {
+                  return (
+                    <div
+                      key={`empty-${idx}`}
+                      style={{
+                        height: '84px',
+                        borderRadius: '10px',
+                        background: 'rgba(255, 255, 255, 0.01)',
+                      }}
+                    />
+                  );
+                }
+
+                const { dateStr, day, dayOfWeek, isPast, isToday, roundTripPrice, priceTier, specialEvent } = dayItem;
+                const isStart = isRangeStart(dateStr);
+                const isEnd = isRangeEnd(dateStr);
+                const inRange = isInRange(dateStr);
+                const inHover = isInHoverRange(dateStr);
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                const tripInfo = getTripDayInfo(dateStr);
+
+                // Price color
+                let priceColor = '#34d399';
+                if (priceTier === 'mid') priceColor = '#38bdf8';
+                if (priceTier === 'high') priceColor = '#f59e0b';
+                if (priceTier === 'peak') priceColor = '#ef4444';
+
+                // Highlighting style determination
+                let cellBorder = '1px solid var(--border-hairline)';
+                let cellBg = 'var(--bg-surface-raised)';
+                let cellShadow = 'none';
+                let cellTransform = 'none';
+                let cellZIndex = 1;
+
+                if (isStart) {
+                  cellBorder = '3px solid #ffffff';
+                  cellBg = 'linear-gradient(135deg, #ff0055 0%, #d50000 100%)';
+                  cellShadow = '0 0 22px rgba(255, 0, 85, 0.85), 0 4px 14px rgba(0,0,0,0.6)';
+                  cellTransform = 'scale(1.03)';
+                  cellZIndex = 4;
+                } else if (isEnd) {
+                  cellBorder = '3px solid #ffffff';
+                  cellBg = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)';
+                  cellShadow = '0 0 22px rgba(2, 132, 199, 0.85), 0 4px 14px rgba(0,0,0,0.6)';
+                  cellTransform = 'scale(1.03)';
+                  cellZIndex = 4;
+                } else if (inRange) {
+                  cellBorder = '2px solid #ff4d6d';
+                  cellBg = 'linear-gradient(180deg, rgba(255, 77, 109, 0.55) 0%, rgba(225, 29, 72, 0.4) 100%)';
+                  cellShadow = 'inset 0 0 14px rgba(255, 77, 109, 0.4), 0 0 10px rgba(255, 77, 109, 0.35)';
+                  cellZIndex = 2;
+                } else if (inHover) {
+                  cellBorder = '2px dashed #ff4d6d';
+                  cellBg = 'rgba(255, 77, 109, 0.3)';
+                  cellShadow = '0 0 12px rgba(255, 77, 109, 0.4)';
+                  cellZIndex = 2;
+                } else if (isToday) {
+                  cellBorder = '1.5px solid #38bdf8';
+                  cellBg = 'rgba(56, 189, 248, 0.08)';
+                }
+
+                return (
                   <div
+                    key={dateStr}
+                    onClick={() => handleDateClick(dateStr, isPast)}
+                    onMouseEnter={() => !isPast && setHoverDate(dateStr)}
+                    onMouseLeave={() => setHoverDate(null)}
                     style={{
-                      fontSize: '9.5px',
-                      fontWeight: 700,
-                      color: isStart || isEnd || inRange ? '#fff' : specialEvent.tagColor,
-                      lineHeight: 1.1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
+                      height: '84px',
+                      borderRadius: '10px',
+                      padding: '8px 6px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      cursor: isPast ? 'not-allowed' : 'pointer',
+                      opacity: isPast ? 0.35 : 1,
+                      position: 'relative',
+                      border: cellBorder,
+                      background: cellBg,
+                      boxShadow: cellShadow,
+                      transform: cellTransform,
+                      zIndex: cellZIndex,
+                      transition: 'all 0.15s ease',
                     }}
                   >
-                    {specialEvent.label}
-                  </div>
-                )}
+                    {/* Top Row: Date number + Badges */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <span
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: 800,
+                          color: isStart || isEnd || inRange ? '#fff' : isWeekend ? '#f472b6' : '#fff',
+                          textShadow: isStart || isEnd || inRange ? '0 1px 3px rgba(0,0,0,0.6)' : 'none',
+                        }}
+                      >
+                        {day}
+                      </span>
 
-                {isPast && (
-                  <div style={{ fontSize: '9.5px', color: 'var(--text-tertiary)' }}>
-                    ผ่านไปแล้ว
-                  </div>
-                )}
+                      {isToday && !isStart && !isEnd && !inRange && (
+                        <span style={{ fontSize: '9px', background: '#38bdf8', color: '#000', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>
+                          วันนี้
+                        </span>
+                      )}
+                      {isStart && (
+                        <span style={{ fontSize: '9px', background: '#fff', color: '#d50000', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                          🛫 วันไป
+                        </span>
+                      )}
+                      {isEnd && !isStart && (
+                        <span style={{ fontSize: '9px', background: '#fff', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                          🛬 วันกลับ
+                        </span>
+                      )}
+                      {inRange && tripInfo && (
+                        <span style={{ fontSize: '8.5px', background: '#ff4d6d', color: '#fff', padding: '1px 5px', borderRadius: '3px', fontWeight: 900 }}>
+                          ✨ วันที่ {tripInfo.dayIdx}/{tripInfo.totalDays}
+                        </span>
+                      )}
+                    </div>
 
-                {/* Bottom Row: Estimated Round-Trip Flight Price */}
-                {!isPast ? (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span
-                      style={{
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        color: isStart || isEnd || inRange ? '#fff' : priceColor,
-                        textShadow: isStart || isEnd || inRange ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
-                      }}
-                    >
-                      {formatPrice(roundTripPrice)}
-                    </span>
-                    <span style={{ fontSize: '9px', color: isStart || isEnd || inRange ? 'rgba(255,255,255,0.9)' : 'var(--text-tertiary)', fontWeight: 600 }}>
-                      ไป-กลับ
-                    </span>
+                    {/* Event tag if available */}
+                    {specialEvent && !isPast && (
+                      <div
+                        style={{
+                          fontSize: '9.5px',
+                          fontWeight: 700,
+                          color: isStart || isEnd || inRange ? '#fff' : specialEvent.tagColor,
+                          lineHeight: 1.1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {specialEvent.label}
+                      </div>
+                    )}
+
+                    {isPast && (
+                      <div style={{ fontSize: '9.5px', color: 'var(--text-tertiary)' }}>
+                        ผ่านไปแล้ว
+                      </div>
+                    )}
+
+                    {/* Bottom Row: Estimated Round-Trip Flight Price */}
+                    {!isPast ? (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            color: isStart || isEnd || inRange ? '#fff' : priceColor,
+                            textShadow: isStart || isEnd || inRange ? '0 1px 2px rgba(0,0,0,0.4)' : 'none',
+                          }}
+                        >
+                          {formatPrice(roundTripPrice)}
+                        </span>
+                        <span style={{ fontSize: '9px', color: isStart || isEnd || inRange ? 'rgba(255,255,255,0.9)' : 'var(--text-tertiary)', fontWeight: 600 }}>
+                          ไป-กลับ
+                        </span>
+                      </div>
+                    ) : (
+                      <div style={{ height: '12px' }} />
+                    )}
                   </div>
-                ) : (
-                  <div style={{ height: '12px' }} />
-                )}
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Selected Range Summary Bar with Direct Live Search Links */}

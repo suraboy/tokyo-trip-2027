@@ -177,12 +177,7 @@ const TripMapInner: React.FC<TripMapProps> = ({
       center={center}
       zoom={11}
       scrollWheelZoom={true}
-      style={{
-        width: '100%',
-        height: '580px',
-        borderRadius: '16px',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }}
+      className="leaflet-map-responsive"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

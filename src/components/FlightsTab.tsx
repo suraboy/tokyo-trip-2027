@@ -101,12 +101,11 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
 
         {/* Airport Matrix */}
         <div
+          className="grid-cols-3"
           style={{
             marginTop: '24px',
             paddingTop: '20px',
             borderTop: '1px solid var(--border-hairline)',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '14px',
           }}
         >

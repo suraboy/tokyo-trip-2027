@@ -292,16 +292,171 @@ body {
   color: var(--fuji-cyan);
 }
 
-/* Grid Layouts */
+/* Responsive Grid Layouts */
+.grid-cols-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
 .grid-cols-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
-@media (max-width: 900px) {
-  .grid-cols-2 {
+.grid-cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.grid-cols-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+/* Responsive Step Navigation */
+.step-nav-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.step-nav-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.step-nav-item {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Responsive Rows for Flights & Transits */
+.responsive-flight-card {
+  display: grid;
+  grid-template-columns: 1.4fr 2fr 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.responsive-transit-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1.6fr 0.8fr;
+  gap: 14px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .responsive-flight-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .responsive-transit-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+}
+
+/* Leaflet Map Responsive Container */
+.leaflet-map-responsive {
+  width: 100%;
+  height: 580px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 1024px) {
+  .leaflet-map-responsive {
+    height: 460px;
+  }
+}
+
+@media (max-width: 640px) {
+  .leaflet-map-responsive {
+    height: 360px;
+    border-radius: 12px;
+  }
+}
+
+/* Responsive Mobile Utilities */
+@media (max-width: 640px) {
+  .app-container {
+    padding: 12px 12px 60px;
+  }
+
+  .editorial-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
+  .editorial-ticker {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 14px;
+    font-size: 11.5px;
+  }
+
+  .bento-card {
+    padding: 16px;
+    border-radius: var(--radius-sm);
+  }
+
+  .brand-heading {
+    font-size: 17px;
+  }
+
+  .btn-editorial-primary {
+    padding: 8px 16px;
+    font-size: 12.5px;
+  }
+
+  .btn-editorial-secondary {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .app-container {
+    padding: 16px 20px 70px;
+  }
+
+  .bento-card {
+    padding: 20px;
   }
 }
 
@@ -315,7 +470,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 999;
-  padding: 20px;
+  padding: 16px;
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -324,10 +479,33 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-elevated);
-  max-height: 90vh;
+  max-height: 92vh;
   overflow-y: auto;
   width: 100%;
+  max-width: 900px;
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 8px;
+    align-items: flex-end;
+  }
+  .modal-content {
+    max-height: 95vh;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: 14px !important;
+  }
+}
+
+/* Hide Scrollbar Utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes fadeIn {

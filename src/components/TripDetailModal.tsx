@@ -88,7 +88,7 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
             gap: '12px',
             padding: '16px',
             background: 'var(--bg-surface-raised)',
