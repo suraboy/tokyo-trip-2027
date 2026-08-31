@@ -298,6 +298,8 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
                     paddingTop: '14px',
                     borderTop: '1px solid var(--border-hairline)',
                     marginTop: '8px',
+                    flexWrap: 'wrap',
+                    gap: '8px',
                   }}
                 >
                   <div style={{ fontSize: '13px', color: '#34d399', fontWeight: 700 }}>

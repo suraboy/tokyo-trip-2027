@@ -41,10 +41,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
-    <div style={{ marginBottom: '24px' }}>
+    <div style={{ marginBottom: '20px' }}>
       {/* Friendly Top Status Bar */}
       <div className="editorial-ticker">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="ticker-left">
           <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontWeight: 600 }}>
             <span>🌸</span>
             <span>ทริปญี่ปุ่น 2027</span>
@@ -55,12 +55,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Clock size={13} color="var(--vermilion)" />
-            <span>เวลาโตเกียว:</span>
-            <strong style={{ color: '#fff' }}>{tokyoTime || '07:42:00'} JST</strong>
-          </span>
+        <div className="ticker-right">
+          <Clock size={13} color="var(--vermilion)" />
+          <span>เวลาโตเกียว:</span>
+          <strong style={{ color: '#fff' }}>{tokyoTime || '07:42:00'} JST</strong>
         </div>
       </div>
 
@@ -73,8 +71,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <div className="brand-heading">
-              TOKYO TRIP 2027
-              <span className="editorial-tag tag-red" style={{ fontSize: '11px' }}>
+              <span>TOKYO TRIP 2027</span>
+              <span className="editorial-tag tag-red hide-on-tiny" style={{ fontSize: '11px' }}>
                 🌸 Japan Vacation
               </span>
             </div>
@@ -85,57 +83,29 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="navbar-actions">
           {/* Create Trip Plan Button */}
           <button
             onClick={onOpenCreateModal}
-            className="btn-editorial-primary"
+            className="btn-editorial-primary navbar-create-btn"
           >
-            <Plus size={16} />
+            <Plus size={15} />
             <span>+ สร้างแพลนใหม่</span>
           </button>
 
           {/* Currency Toggle */}
-          <div
-            style={{
-              display: 'flex',
-              background: 'var(--bg-surface-raised)',
-              border: '1px solid var(--border-hairline)',
-              borderRadius: 'var(--radius-pill)',
-              padding: '3px',
-            }}
-          >
+          <div className="navbar-currency-toggle">
             <button
               onClick={() => setCurrency('THB')}
-              style={{
-                padding: '6px 14px',
-                border: 'none',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                background: currency === 'THB' ? 'var(--vermilion)' : 'transparent',
-                color: currency === 'THB' ? '#fff' : 'var(--text-secondary)',
-                transition: 'all 0.15s ease',
-              }}
+              className={`currency-btn ${currency === 'THB' ? 'active' : ''}`}
             >
-              ฿ บาท (THB)
+              ฿ THB
             </button>
             <button
               onClick={() => setCurrency('JPY')}
-              style={{
-                padding: '6px 14px',
-                border: 'none',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                background: currency === 'JPY' ? 'var(--vermilion)' : 'transparent',
-                color: currency === 'JPY' ? '#fff' : 'var(--text-secondary)',
-                transition: 'all 0.15s ease',
-              }}
+              className={`currency-btn ${currency === 'JPY' ? 'active' : ''}`}
             >
-              ¥ เยน (JPY)
+              ¥ JPY
             </button>
           </div>
         </div>

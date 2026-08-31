@@ -52,21 +52,21 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </span>
           </div>
 
-          <h1 style={{ fontSize: '32px', fontWeight: 800, lineHeight: '1.3', letterSpacing: '-0.5px', marginBottom: '14px' }}>
+          <h1 className="hero-title">
             สร้างแพลนท่องเที่ยวของคุณง่ายๆ <br />
             <span style={{ color: 'var(--vermilion)' }}>
               และค้นหาแรงบันดาลใจจากเพื่อนๆ ในชุมชน
             </span>
           </h1>
 
-          <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
+          <p className="hero-desc">
             อยากไปเที่ยวญี่ปุ่นกี่วัน? ไปช่วงซากุระหรือใบไม้เปลี่ยนสี? 
             ปักหมุดสถานที่ที่คุณอยากไป แล้วสร้างแพลนสวยๆ แชร์ให้เพื่อนหรือครอบครัวดูได้ทันที
           </p>
 
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <button onClick={onOpenCreateModal} className="btn-editorial-primary" style={{ padding: '12px 26px', fontSize: '14px' }}>
-              <Plus size={18} />
+            <button onClick={onOpenCreateModal} className="btn-editorial-primary" style={{ padding: '11px 22px', fontSize: '13.5px' }}>
+              <Plus size={16} />
               <span>+ เริ่มสร้างแพลนเที่ยวของคุณ</span>
             </button>
           </div>
