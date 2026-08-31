@@ -100,38 +100,40 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{t.createPlanBtn}</span>
           </button>
 
-          {/* Language Switcher */}
-          <div className="navbar-currency-toggle">
-            <button
-              onClick={() => setLanguage('th')}
-              className={`currency-btn ${language === 'th' ? 'active' : ''}`}
-              title="ภาษาไทย"
-            >
-              TH
-            </button>
-            <button
-              onClick={() => setLanguage('en')}
-              className={`currency-btn ${language === 'en' ? 'active' : ''}`}
-              title="English"
-            >
-              EN
-            </button>
-          </div>
+          <div className="navbar-toggle-group">
+            {/* Language Switcher */}
+            <div className="segmented-control">
+              <button
+                onClick={() => setLanguage('th')}
+                className={`segmented-btn ${language === 'th' ? 'active' : ''}`}
+                title="ภาษาไทย"
+              >
+                TH
+              </button>
+              <button
+                onClick={() => setLanguage('en')}
+                className={`segmented-btn ${language === 'en' ? 'active' : ''}`}
+                title="English"
+              >
+                EN
+              </button>
+            </div>
 
-          {/* Currency Toggle */}
-          <div className="navbar-currency-toggle">
-            <button
-              onClick={() => setCurrency('THB')}
-              className={`currency-btn ${currency === 'THB' ? 'active' : ''}`}
-            >
-              ฿ THB
-            </button>
-            <button
-              onClick={() => setCurrency('JPY')}
-              className={`currency-btn ${currency === 'JPY' ? 'active' : ''}`}
-            >
-              ¥ JPY
-            </button>
+            {/* Currency Toggle */}
+            <div className="segmented-control">
+              <button
+                onClick={() => setCurrency('THB')}
+                className={`segmented-btn ${currency === 'THB' ? 'active' : ''}`}
+              >
+                ฿ THB
+              </button>
+              <button
+                onClick={() => setCurrency('JPY')}
+                className={`segmented-btn ${currency === 'JPY' ? 'active' : ''}`}
+              >
+                ¥ JPY
+              </button>
+            </div>
           </div>
         </div>
       </header>

@@ -190,19 +190,26 @@ body {
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
-.navbar-currency-toggle {
+.navbar-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.segmented-control {
   display: flex;
   background: var(--bg-surface-raised);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-pill);
   padding: 3px;
+  gap: 2px;
 }
 
-.currency-btn {
+.segmented-btn {
   padding: 6px 12px;
   border: none;
   border-radius: var(--radius-pill);
@@ -213,9 +220,14 @@ body {
   color: var(--text-secondary);
   transition: all 0.15s ease;
   font-family: var(--font-sans);
+  line-height: 1;
 }
 
-.currency-btn.active {
+.segmented-btn:hover {
+  color: #fff;
+}
+
+.segmented-btn.active {
   background: var(--vermilion);
   color: #fff;
   box-shadow: 0 2px 8px var(--vermilion-glow);
@@ -225,6 +237,9 @@ body {
   padding: 9px 18px;
   font-size: 13px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Typography Utilities */
@@ -567,18 +582,26 @@ body {
   .navbar-create-btn {
     flex: 1;
     min-width: 0;
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: 12px;
+    justify-content: center;
   }
 
-  .navbar-currency-toggle {
-    padding: 2px;
+  .navbar-toggle-group {
+    display: flex;
+    gap: 6px;
     flex-shrink: 0;
   }
 
-  .currency-btn {
-    padding: 5px 9px;
-    font-size: 11px;
+  .segmented-control {
+    padding: 2px;
+    gap: 1px;
+  }
+
+  .segmented-btn {
+    padding: 5px 8px;
+    font-size: 10.5px;
+    font-weight: 700;
   }
 
   .bento-card {
