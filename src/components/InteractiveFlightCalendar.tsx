@@ -137,7 +137,9 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
   const [viewYear, setViewYear] = useState<number>(2027);
   const [viewMonth, setViewMonth] = useState<number>(selectedMonthIndex + 1); // 1-12
 
-  // Auto-sync viewing month with selected range start date or prop
+  // Sync view to trip start ONLY when the trip start date changes.
+  // (Old bug: effect also depended on selectedMonthIndex, so every month-pill click
+  // re-ran it and snapped the view back to the locked trip month.)
   React.useEffect(() => {
     if (selectedRange?.start) {
       const parts = selectedRange.start.split('-');
@@ -147,14 +149,20 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
         if (!isNaN(yr) && !isNaN(mo)) {
           setViewYear(yr);
           setViewMonth(mo);
-          return;
         }
       }
     }
+  }, [selectedRange?.start]);
+
+  // External month-index change from parent: only follow if differs from current view
+  const prevMonthIdxRef = React.useRef(selectedMonthIndex);
+  React.useEffect(() => {
+    if (prevMonthIdxRef.current === selectedMonthIndex) return;
+    prevMonthIdxRef.current = selectedMonthIndex;
     if (selectedMonthIndex !== undefined) {
       setViewMonth(selectedMonthIndex + 1);
     }
-  }, [selectedRange?.start, selectedMonthIndex]);
+  }, [selectedMonthIndex]);
 
   // Selected range month meta
   const selectedRangeMonthInfo = useMemo(() => {
