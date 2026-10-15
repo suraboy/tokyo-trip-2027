@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { FlightOption, Currency } from '@/types/travel';
-import { FLIGHT_OPTIONS, JPY_TO_THB_RATE } from '@/data/mockData';
+import { FLIGHT_OPTIONS } from '@/data/mockData';
+import { useJpyThbRate } from '@/hooks/useJpyThbRate';
 import { 
   Plane, 
   Luggage, 
@@ -28,6 +29,7 @@ export const FlightsTab: React.FC<FlightsTabProps> = ({
   currency,
   selectedMonthName,
 }) => {
+  const JPY_TO_THB_RATE = useJpyThbRate();
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'full_service' | 'low_cost'>('all');
   const [addLccBaggage, setAddLccBaggage] = useState<boolean>(true);
   const [addTravelInsurance, setAddTravelInsurance] = useState<boolean>(true);

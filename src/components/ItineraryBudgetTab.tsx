@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Attraction, FlightOption, Currency, MonthData } from '@/types/travel';
-import { JPY_TO_THB_RATE } from '@/data/mockData';
+import { useJpyThbRate } from '@/hooks/useJpyThbRate';
 import { 
   DollarSign, 
   MapPin, 
@@ -32,6 +32,7 @@ export const ItineraryBudgetTab: React.FC<ItineraryBudgetTabProps> = ({
   tripDurationDays,
   setTripDurationDays,
 }) => {
+  const JPY_TO_THB_RATE = useJpyThbRate();
   const [hotelCostPerNightTHB, setHotelCostPerNightTHB] = useState<number>(3200);
   const [dailyFoodJPY, setDailyFoodJPY] = useState<number>(4500);
   const [shoppingJPY, setShoppingJPY] = useState<number>(30000);

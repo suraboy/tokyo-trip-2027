@@ -15,6 +15,7 @@ export interface MonthData {
   priceLevel: 1 | 2 | 3 | 4 | 5;
   overallScore: number; // 1 - 100
   highlights: string[];
+  highlightsEn?: string[];
   pros: string[];
   cons: string[];
   recommendedFor: string[];
@@ -95,7 +96,7 @@ export interface HotelOption {
   id: string;
   nameTh: string;
   nameEn: string;
-  area: 'Shinjuku' | 'Ueno' | 'Asakusa' | 'Shibuya' | 'Ginza' | 'Akihabara' | 'Ikebukuro' | 'Roppongi' | 'Tokyo Station' | 'Kawaguchiko';
+  area: 'Shinjuku' | 'Ueno' | 'Asakusa' | 'Shibuya' | 'Ginza' | 'Akihabara' | 'Ikebukuro' | 'Roppongi' | 'Tokyo Station' | 'Kawaguchiko' | 'Koto';
   areaTh: string;
   starRating: number;
   ratingScore: number; // 1 - 10
@@ -113,6 +114,11 @@ export interface HotelOption {
   priceComparison?: HotelPriceQuote[];
   lowestPriceTHB?: number;
   bestSource?: string;
+  /** 'curated' (hand-picked, has prices) or 'osm' (OpenStreetMap listing, no price) */
+  source?: 'curated' | 'osm';
+  osmKind?: 'hotel' | 'hostel' | 'guest_house';
+  /** extra searchable names (Japanese name, brand, district) */
+  aliases?: string[];
 }
 
 export interface WayfinderDecision {
@@ -133,6 +139,8 @@ export interface CommunityTripPlan {
   target_year: number;
   target_month: number;
   duration_days: number;
+  travel_start_date?: string; // YYYY-MM-DD
+  travel_end_date?: string; // YYYY-MM-DD
   destinations: string[]; // List of spot names / IDs
   selected_flight?: string;
   selected_hotel_id?: string;

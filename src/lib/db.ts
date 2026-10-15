@@ -25,6 +25,8 @@ sqlite.exec(`
     selected_flight TEXT,
     selected_hotel_id TEXT,
     hotel_area TEXT,
+    travel_start_date TEXT,
+    travel_end_date TEXT,
     estimated_budget_thb REAL DEFAULT 38000,
     custom_notes TEXT,
     tags TEXT NOT NULL DEFAULT '[]',
@@ -43,6 +45,12 @@ if (!existingCols.has('selected_hotel_id')) {
 if (!existingCols.has('hotel_area')) {
   sqlite.exec('ALTER TABLE trip_plans ADD COLUMN hotel_area TEXT');
 }
+if (!existingCols.has('travel_start_date')) {
+  sqlite.exec('ALTER TABLE trip_plans ADD COLUMN travel_start_date TEXT');
+}
+if (!existingCols.has('travel_end_date')) {
+  sqlite.exec('ALTER TABLE trip_plans ADD COLUMN travel_end_date TEXT');
+}
 
 export interface DbTripRow {
   id: string;
@@ -55,6 +63,8 @@ export interface DbTripRow {
   selected_flight: string | null;
   selected_hotel_id?: string | null;
   hotel_area?: string | null;
+  travel_start_date?: string | null;
+  travel_end_date?: string | null;
   estimated_budget_thb: number;
   custom_notes: string | null;
   tags: string;
@@ -77,6 +87,8 @@ export function getAllTripPlans(): CommunityTripPlan[] {
     selected_flight: r.selected_flight || undefined,
     selected_hotel_id: r.selected_hotel_id || undefined,
     hotel_area: r.hotel_area || undefined,
+    travel_start_date: r.travel_start_date || undefined,
+    travel_end_date: r.travel_end_date || undefined,
     estimated_budget_thb: r.estimated_budget_thb,
     custom_notes: r.custom_notes || undefined,
     tags: JSON.parse(r.tags || '[]'),
@@ -101,6 +113,8 @@ export function upsertTripPlan(plan: Partial<CommunityTripPlan>): CommunityTripP
           selected_flight = ?,
           selected_hotel_id = ?,
           hotel_area = ?,
+          travel_start_date = ?,
+          travel_end_date = ?,
           estimated_budget_thb = ?,
           custom_notes = ?,
           tags = ?
@@ -117,6 +131,8 @@ export function upsertTripPlan(plan: Partial<CommunityTripPlan>): CommunityTripP
         plan.selected_flight ?? existing.selected_flight,
         plan.selected_hotel_id ?? existing.selected_hotel_id,
         plan.hotel_area ?? existing.hotel_area,
+        plan.travel_start_date ?? existing.travel_start_date ?? null,
+        plan.travel_end_date ?? existing.travel_end_date ?? null,
         plan.estimated_budget_thb ?? existing.estimated_budget_thb,
         plan.custom_notes ?? existing.custom_notes,
         JSON.stringify(plan.tags ?? JSON.parse(existing.tags || '[]')),
@@ -134,6 +150,8 @@ export function upsertTripPlan(plan: Partial<CommunityTripPlan>): CommunityTripP
         selected_flight: plan.selected_flight ?? existing.selected_flight ?? undefined,
         selected_hotel_id: plan.selected_hotel_id ?? existing.selected_hotel_id ?? undefined,
         hotel_area: plan.hotel_area ?? existing.hotel_area ?? undefined,
+        travel_start_date: plan.travel_start_date ?? existing.travel_start_date ?? undefined,
+        travel_end_date: plan.travel_end_date ?? existing.travel_end_date ?? undefined,
         estimated_budget_thb: plan.estimated_budget_thb ?? existing.estimated_budget_thb,
         custom_notes: plan.custom_notes ?? existing.custom_notes ?? undefined,
         tags: plan.tags ?? JSON.parse(existing.tags || '[]'),
@@ -158,6 +176,8 @@ export function upsertTripPlan(plan: Partial<CommunityTripPlan>): CommunityTripP
     selected_flight: plan.selected_flight,
     selected_hotel_id: plan.selected_hotel_id,
     hotel_area: plan.hotel_area,
+    travel_start_date: plan.travel_start_date,
+    travel_end_date: plan.travel_end_date,
     estimated_budget_thb: plan.estimated_budget_thb || 38000,
     custom_notes: plan.custom_notes || '',
     tags: plan.tags || [`${plan.duration_days || 7} Days`],
@@ -169,10 +189,12 @@ export function upsertTripPlan(plan: Partial<CommunityTripPlan>): CommunityTripP
     INSERT INTO trip_plans (
       id, trip_title, creator_name, target_year, target_month,
       duration_days, destinations, selected_flight, selected_hotel_id, hotel_area,
+      travel_start_date, travel_end_date,
       estimated_budget_thb, custom_notes, tags, likes_count, created_at
     ) VALUES (
       ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?,
+      ?, ?,
       ?, ?, ?, ?, ?
     )
   `);
@@ -188,6 +210,8 @@ export function upsertTripPlan(plan: Partial<CommunityTripPlan>): CommunityTripP
     newPlan.selected_flight || null,
     newPlan.selected_hotel_id || null,
     newPlan.hotel_area || null,
+    newPlan.travel_start_date || null,
+    newPlan.travel_end_date || null,
     newPlan.estimated_budget_thb,
     newPlan.custom_notes || null,
     JSON.stringify(newPlan.tags),

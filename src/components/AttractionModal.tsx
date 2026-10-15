@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Attraction, Currency, Language } from '@/types/travel';
-import { JPY_TO_THB_RATE } from '@/data/mockData';
+import { useJpyThbRate } from '@/hooks/useJpyThbRate';
 import { X, Clock, Train, Heart, CheckCircle2, DollarSign, Star } from 'lucide-react';
 
 interface AttractionModalProps {
@@ -22,6 +22,7 @@ export const AttractionModal: React.FC<AttractionModalProps> = ({
   isWishlisted,
   onToggleWishlist,
 }) => {
+  const JPY_TO_THB_RATE = useJpyThbRate();
   if (!attraction) return null;
 
   const displayPrice =

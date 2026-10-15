@@ -9,8 +9,35 @@ import { TripPlannerWorkspace } from '@/components/TripPlannerWorkspace';
 
 export default function Home() {
   const [currency, setCurrency] = useState<Currency>('THB');
-  const [language, setLanguage] = useState<Language>('th');
+  const [language, setLanguageState] = useState<Language>('th');
+
+  // Restore saved language after mount (avoids SSR hydration mismatch)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('tokyo-trip-lang');
+      if (saved === 'th' || saved === 'en') setLanguageState(saved);
+    } catch {}
+  }, []);
+
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2800);
+  };
+
+  const setLanguage = (lang: Language) => {
+    if (lang === language) return;
+    setLanguageState(lang);
+    try {
+      localStorage.setItem('tokyo-trip-lang', lang);
+    } catch {}
+    document.documentElement.lang = lang;
+    showToast(lang === 'th' ? '🇹🇭 สลับเป็นภาษาไทยเรียบร้อยแล้ว' : '🇬🇧 Switched to English successfully');
+  };
+  const tr = (th: string, en: string) => (language === 'th' ? th : en);
 
   // Community Trip Plans State from DB
   const [communityPlans, setCommunityPlans] = useState<CommunityTripPlan[]>([]);
@@ -22,13 +49,6 @@ export default function Home() {
   const [activeWorkspacePlan, setActiveWorkspacePlan] = useState<CommunityTripPlan | null>(null);
   const [workspaceTripTitle, setWorkspaceTripTitle] = useState<string>('ทริปโตเกียว & ฟูจิ 2027');
   const [workspaceCreatorName, setWorkspaceCreatorName] = useState<string>('SuraBoy');
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-  };
 
   const fetchPlansFromDb = async () => {
     try {
@@ -55,7 +75,7 @@ export default function Home() {
     setWorkspaceTripTitle(title);
     setWorkspaceCreatorName(creator);
     setIsWorkspaceActive(true);
-    showToast(`เปิด Dashboard วางแผนทริป "${title}" แล้ว 🚀`);
+    showToast(tr(`เปิด Dashboard วางแผนทริป "${title}" แล้ว 🚀`, `Opened planner dashboard "${title}" 🚀`));
   };
 
   // Launch workspace from an existing community plan card
@@ -64,12 +84,12 @@ export default function Home() {
     setWorkspaceTripTitle(trip.trip_title);
     setWorkspaceCreatorName(trip.creator_name);
     setIsWorkspaceActive(true);
-    showToast(`เปิด Dashboard สำหรับทริป "${trip.trip_title}" แล้ว 🗺️`);
+    showToast(tr(`เปิด Dashboard สำหรับทริป "${trip.trip_title}" แล้ว 🗺️`, `Opened dashboard for "${trip.trip_title}" 🗺️`));
   };
 
   const handleSaveTripFromWorkspace = async (newPlanData: Partial<CommunityTripPlan>) => {
     try {
-      showToast('กำลังบันทึกข้อมูลลง Database...');
+      showToast(tr('กำลังบันทึกข้อมูลลง Database...', 'Saving to database...'));
       const res = await fetch('/api/trips', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -86,12 +106,12 @@ export default function Home() {
           }
           return [data.trip, ...prev];
         });
-        showToast(`บันทึกแพลน "${data.trip.trip_title}" ลง DB สำเร็จ! 💾`);
+        showToast(tr(`บันทึกแพลน "${data.trip.trip_title}" ลง DB สำเร็จ! 💾`, `Plan "${data.trip.trip_title}" saved! 💾`));
       } else {
-        showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+        showToast(tr('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'Error saving data'));
       }
     } catch (e) {
-      showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ Database');
+      showToast(tr('เกิดข้อผิดพลาดในการเชื่อมต่อ Database', 'Database connection error'));
     }
   };
 

@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { MonthData, Currency, Language } from '@/types/travel';
-import { MONTHS_DATA, JPY_TO_THB_RATE } from '@/data/mockData';
+import { MONTHS_DATA } from '@/data/mockData';
+import { useJpyThbRate } from '@/hooks/useJpyThbRate';
 import { useI18n } from '@/utils/i18n';
 import {
   ChevronLeft,
@@ -30,40 +31,40 @@ interface InteractiveFlightCalendarProps {
 }
 
 // Special events & season milestones across 2026-2028
-const SPECIAL_EVENTS: Record<string, { label: string; tagColor: string; type: 'sakura' | 'autumn' | 'holiday' | 'festival' }> = {
+const SPECIAL_EVENTS: Record<string, { label: string; labelEn: string; tagColor: string; type: 'sakura' | 'autumn' | 'holiday' | 'festival' }> = {
   // 2026 Autumn / Winter
-  '2026-10-31': { label: '🎃 ฮาโลวีนชิบูย่า', tagColor: '#f97316', type: 'festival' },
-  '2026-11-15': { label: '🍁 Momiji Tokyo พีค', tagColor: '#ef4444', type: 'autumn' },
-  '2026-11-20': { label: '🍂 แปะก๊วยสีทอง', tagColor: '#eab308', type: 'autumn' },
-  '2026-12-25': { label: '🎄 คริสต์มาส', tagColor: '#38bdf8', type: 'festival' },
-  '2026-12-31': { label: '🎆 เค้าท์ดาวน์ปีใหม่', tagColor: '#ec4899', type: 'holiday' },
+  '2026-10-31': { label: '🎃 ฮาโลวีนชิบูย่า', labelEn: '🎃 Shibuya Halloween', tagColor: '#f97316', type: 'festival' },
+  '2026-11-15': { label: '🍁 Momiji Tokyo พีค', labelEn: '🍁 Tokyo Momiji Peak', tagColor: '#ef4444', type: 'autumn' },
+  '2026-11-20': { label: '🍂 แปะก๊วยสีทอง', labelEn: '🍂 Golden Ginkgo', tagColor: '#eab308', type: 'autumn' },
+  '2026-12-25': { label: '🎄 คริสต์มาส', labelEn: '🎄 Christmas', tagColor: '#38bdf8', type: 'festival' },
+  '2026-12-31': { label: '🎆 เค้าท์ดาวน์ปีใหม่', labelEn: '🎆 New Year Countdown', tagColor: '#ec4899', type: 'holiday' },
 
   // 2027 Full Year
-  '2027-01-01': { label: '🎍 วันปีใหม่', tagColor: '#ef4444', type: 'holiday' },
-  '2027-02-14': { label: '💝 วาเลนไทน์', tagColor: '#ec4899', type: 'festival' },
-  '2027-03-24': { label: '🌸 ซากุระเริ่มบาน', tagColor: '#f472b6', type: 'sakura' },
-  '2027-03-28': { label: '🌸 ซากุระ Full Bloom', tagColor: '#ec4899', type: 'sakura' },
-  '2027-04-12': { label: '🇹🇭 หยุดสงกรานต์', tagColor: '#f59e0b', type: 'holiday' },
-  '2027-04-13': { label: '🇹🇭 สงกรานต์', tagColor: '#f59e0b', type: 'holiday' },
-  '2027-04-14': { label: '🇹🇭 สงกรานต์', tagColor: '#f59e0b', type: 'holiday' },
-  '2027-04-29': { label: '🎌 Showa Day', tagColor: '#a855f7', type: 'holiday' },
-  '2027-05-03': { label: '🎌 Golden Week', tagColor: '#a855f7', type: 'holiday' },
-  '2027-05-04': { label: '🎌 Greenery Day', tagColor: '#a855f7', type: 'holiday' },
-  '2027-05-05': { label: '🎌 Children Day', tagColor: '#a855f7', type: 'holiday' },
-  '2027-07-24': { label: '🎆 พลุสุมิดะ', tagColor: '#38bdf8', type: 'festival' },
-  '2027-08-13': { label: '🎌 เทศกาลโอบ้ง', tagColor: '#f59e0b', type: 'holiday' },
-  '2027-10-31': { label: '🎃 ฮาโลวีนชิบูย่า', tagColor: '#f97316', type: 'festival' },
-  '2027-11-12': { label: '🍁 ใบไม้แดงฟูจิพีค', tagColor: '#ef4444', type: 'autumn' },
-  '2027-11-15': { label: '🍁 Momiji Tokyo พีค', tagColor: '#ef4444', type: 'autumn' },
-  '2027-11-20': { label: '🍂 แปะก๊วยสีทอง', tagColor: '#eab308', type: 'autumn' },
-  '2027-12-24': { label: '🎄 คริสต์มาสอีฟ', tagColor: '#38bdf8', type: 'festival' },
-  '2027-12-25': { label: '🎄 คริสต์มาส', tagColor: '#38bdf8', type: 'festival' },
-  '2027-12-31': { label: '🎆 เค้าท์ดาวน์ปีใหม่', tagColor: '#ec4899', type: 'holiday' },
+  '2027-01-01': { label: '🎍 วันปีใหม่', labelEn: '🎍 New Year Day', tagColor: '#ef4444', type: 'holiday' },
+  '2027-02-14': { label: '💝 วาเลนไทน์', labelEn: '💝 Valentine Day', tagColor: '#ec4899', type: 'festival' },
+  '2027-03-24': { label: '🌸 ซากุระเริ่มบาน', labelEn: '🌸 Sakura Starts Blooming', tagColor: '#f472b6', type: 'sakura' },
+  '2027-03-28': { label: '🌸 ซากุระ Full Bloom', labelEn: '🌸 Sakura Full Bloom', tagColor: '#ec4899', type: 'sakura' },
+  '2027-04-12': { label: '🇹🇭 หยุดสงกรานต์', labelEn: '🇹🇭 Songkran Holiday', tagColor: '#f59e0b', type: 'holiday' },
+  '2027-04-13': { label: '🇹🇭 สงกรานต์', labelEn: '🇹🇭 Songkran', tagColor: '#f59e0b', type: 'holiday' },
+  '2027-04-14': { label: '🇹🇭 สงกรานต์', labelEn: '🇹🇭 Songkran', tagColor: '#f59e0b', type: 'holiday' },
+  '2027-04-29': { label: '🎌 Showa Day', labelEn: '🎌 Showa Day', tagColor: '#a855f7', type: 'holiday' },
+  '2027-05-03': { label: '🎌 Golden Week', labelEn: '🎌 Golden Week', tagColor: '#a855f7', type: 'holiday' },
+  '2027-05-04': { label: '🎌 Greenery Day', labelEn: '🎌 Greenery Day', tagColor: '#a855f7', type: 'holiday' },
+  '2027-05-05': { label: '🎌 Children Day', labelEn: '🎌 Children Day', tagColor: '#a855f7', type: 'holiday' },
+  '2027-07-24': { label: '🎆 พลุสุมิดะ', labelEn: '🎆 Sumida Fireworks', tagColor: '#38bdf8', type: 'festival' },
+  '2027-08-13': { label: '🎌 เทศกาลโอบ้ง', labelEn: '🎌 Obon Festival', tagColor: '#f59e0b', type: 'holiday' },
+  '2027-10-31': { label: '🎃 ฮาโลวีนชิบูย่า', labelEn: '🎃 Shibuya Halloween', tagColor: '#f97316', type: 'festival' },
+  '2027-11-12': { label: '🍁 ใบไม้แดงฟูจิพีค', labelEn: '🍁 Fuji Autumn Leaves Peak', tagColor: '#ef4444', type: 'autumn' },
+  '2027-11-15': { label: '🍁 Momiji Tokyo พีค', labelEn: '🍁 Tokyo Momiji Peak', tagColor: '#ef4444', type: 'autumn' },
+  '2027-11-20': { label: '🍂 แปะก๊วยสีทอง', labelEn: '🍂 Golden Ginkgo', tagColor: '#eab308', type: 'autumn' },
+  '2027-12-24': { label: '🎄 คริสต์มาสอีฟ', labelEn: '🎄 Christmas Eve', tagColor: '#38bdf8', type: 'festival' },
+  '2027-12-25': { label: '🎄 คริสต์มาส', labelEn: '🎄 Christmas', tagColor: '#38bdf8', type: 'festival' },
+  '2027-12-31': { label: '🎆 เค้าท์ดาวน์ปีใหม่', labelEn: '🎆 New Year Countdown', tagColor: '#ec4899', type: 'holiday' },
 
   // 2028 Start
-  '2028-01-01': { label: '🎍 วันปีใหม่ 2028', tagColor: '#ef4444', type: 'holiday' },
-  '2028-03-25': { label: '🌸 ซากุระ 2028', tagColor: '#f472b6', type: 'sakura' },
-  '2028-04-13': { label: '🇹🇭 สงกรานต์ 2028', tagColor: '#f59e0b', type: 'holiday' },
+  '2028-01-01': { label: '🎍 วันปีใหม่ 2028', labelEn: '🎍 New Year 2028', tagColor: '#ef4444', type: 'holiday' },
+  '2028-03-25': { label: '🌸 ซากุระ 2028', labelEn: '🌸 Sakura 2028', tagColor: '#f472b6', type: 'sakura' },
+  '2028-04-13': { label: '🇹🇭 สงกรานต์ 2028', labelEn: '🇹🇭 Songkran 2028', tagColor: '#f59e0b', type: 'holiday' },
 };
 
 // Calculate Round-Trip (ไป-กลับ) and One-Way estimated flight price for specific date across 1 year
@@ -123,7 +124,11 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
   selectedRange,
   onSelectRange,
   currency = 'THB',
+  language = 'th',
 }) => {
+  const JPY_TO_THB_RATE = useJpyThbRate();
+  const tr = (th: string, en: string) => (language === 'th' ? th : en);
+  const locale = language === 'th' ? 'th-TH' : 'en-US';
   // Today reference
   const today = useMemo(() => new Date(), []);
   const todayStr = useMemo(() => {
@@ -183,6 +188,26 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
     return null;
   }, [selectedRange, viewYear, viewMonth]);
 
+  // Set of months that intersect with the selected trip range
+  const selectedTripMonths = useMemo(() => {
+    if (!selectedRange?.start || !selectedRange?.end) return new Set<string>();
+    const set = new Set<string>();
+    const startParts = selectedRange.start.split('-');
+    const endParts = selectedRange.end.split('-');
+    const startY = parseInt(startParts[0], 10);
+    const startM = parseInt(startParts[1], 10);
+    const endY = parseInt(endParts[0], 10);
+    const endM = parseInt(endParts[1], 10);
+    const sVal = startY * 12 + (startM - 1);
+    const eVal = endY * 12 + (endM - 1);
+    for (let v = sVal; v <= eVal; v++) {
+      const y = Math.floor(v / 12);
+      const m = (v % 12) + 1;
+      set.add(`${y}-${m}`);
+    }
+    return set;
+  }, [selectedRange]);
+
   // 1-Year (16-Months Rolling) List starting from current month
   const rollingMonths = useMemo(() => {
     const list: Array<{ year: number; month: number; monthData: MonthData; labelTh: string; labelEn: string }> = [];
@@ -215,7 +240,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
 
   const currentMonthData = MONTHS_DATA[viewMonth - 1] || MONTHS_DATA[10];
 
-  // Generate calendar days for viewYear & viewMonth
+  // Generate complete calendar days for viewYear & viewMonth (including previous and next month adjacent days)
   const calendarDays = useMemo(() => {
     const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
     const firstDayOfWeek = new Date(viewYear, viewMonth - 1, 1).getDay();
@@ -224,21 +249,51 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
       dateStr: string;
       day: number;
       dayOfWeek: number;
+      month: number;
+      year: number;
       isCurrentMonth: boolean;
+      monthLabel?: string;
       isPast: boolean;
       isToday: boolean;
       roundTripPrice: number;
       oneWayPrice: number;
       priceTier: 'low' | 'mid' | 'high' | 'peak';
-      specialEvent?: { label: string; tagColor: string; type: string };
-    } | null> = [];
+      specialEvent?: { label: string; labelEn: string; tagColor: string; type: string };
+    }> = [];
 
-    // Empty padding slots before 1st of month
+    // 1. Previous month trailing days (e.g. Feb 28 on Sunday when viewing March)
+    const prevMonth = viewMonth === 1 ? 12 : viewMonth - 1;
+    const prevYear = viewMonth === 1 ? viewYear - 1 : viewYear;
+    const prevMonthDays = new Date(prevYear, prevMonth, 0).getDate();
+    const prevMData = MONTHS_DATA[prevMonth - 1];
+
     for (let i = 0; i < firstDayOfWeek; i++) {
-      days.push(null);
+      const dayNum = prevMonthDays - firstDayOfWeek + 1 + i;
+      const dateStr = `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+      const dayOfWeek = i;
+      const { roundTripPriceTHB, oneWayPriceTHB, tier } = getEstimatedDayFlightPrice(prevYear, prevMonth, dayNum, dayOfWeek);
+      const specialEvent = SPECIAL_EVENTS[dateStr];
+      const isPast = dateStr < todayStr;
+      const isToday = dateStr === todayStr;
+
+      days.push({
+        dateStr,
+        day: dayNum,
+        dayOfWeek,
+        month: prevMonth,
+        year: prevYear,
+        isCurrentMonth: false,
+        monthLabel: prevMData ? (language === 'th' ? prevMData.nameTh.slice(0, 3) : prevMData.nameEn.slice(0, 3)) : '',
+        isPast,
+        isToday,
+        roundTripPrice: roundTripPriceTHB,
+        oneWayPrice: oneWayPriceTHB,
+        priceTier: tier,
+        specialEvent,
+      });
     }
 
-    // Days in viewing month
+    // 2. Days in current viewing month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${viewYear}-${String(viewMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const dayOfWeek = (firstDayOfWeek + day - 1) % 7;
@@ -251,6 +306,8 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
         dateStr,
         day,
         dayOfWeek,
+        month: viewMonth,
+        year: viewYear,
         isCurrentMonth: true,
         isPast,
         isToday,
@@ -261,8 +318,55 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
       });
     }
 
+    // 3. Next month leading days (to complete the full week and guarantee at least 35 slots)
+    const nextMonth = viewMonth === 12 ? 1 : viewMonth + 1;
+    const nextYear = viewMonth === 12 ? viewYear + 1 : viewYear;
+    const nextMData = MONTHS_DATA[nextMonth - 1];
+
+    const totalDaysSoFar = days.length;
+    const remainder = totalDaysSoFar % 7;
+    let neededTrailing = remainder === 0 ? 0 : 7 - remainder;
+    if (totalDaysSoFar + neededTrailing < 35) {
+      neededTrailing += 7;
+    }
+
+    for (let d = 1; d <= neededTrailing; d++) {
+      const dateStr = `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const dayOfWeek = (firstDayOfWeek + daysInMonth + d - 1) % 7;
+      const { roundTripPriceTHB, oneWayPriceTHB, tier } = getEstimatedDayFlightPrice(nextYear, nextMonth, d, dayOfWeek);
+      const specialEvent = SPECIAL_EVENTS[dateStr];
+      const isPast = dateStr < todayStr;
+      const isToday = dateStr === todayStr;
+
+      days.push({
+        dateStr,
+        day: d,
+        dayOfWeek,
+        month: nextMonth,
+        year: nextYear,
+        isCurrentMonth: false,
+        monthLabel: nextMData ? (language === 'th' ? nextMData.nameTh.slice(0, 3) : nextMData.nameEn.slice(0, 3)) : '',
+        isPast,
+        isToday,
+        roundTripPrice: roundTripPriceTHB,
+        oneWayPrice: oneWayPriceTHB,
+        priceTier: tier,
+        specialEvent,
+      });
+    }
+
     return days;
-  }, [viewYear, viewMonth, todayStr]);
+  }, [viewYear, viewMonth, todayStr, language]);
+
+  // Check if the selected trip range is visible in the current calendar view (including adjacent days)
+  const isTripInCurrentView = useMemo(() => {
+    if (!selectedRange?.start || !selectedRange?.end) return false;
+    if (calendarDays.length === 0) return false;
+    const firstVisible = calendarDays[0]?.dateStr;
+    const lastVisible = calendarDays[calendarDays.length - 1]?.dateStr;
+    if (!firstVisible || !lastVisible) return false;
+    return selectedRange.start <= lastVisible && selectedRange.end >= firstVisible;
+  }, [selectedRange, calendarDays]);
 
   const handlePrevMonth = () => {
     let newM = viewMonth - 1;
@@ -366,7 +470,9 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
     };
   }, [selectedRange]);
 
-  const daysOfWeek = ['อา. Sun', 'จ. Mon', 'อ. Tue', 'พ. Wed', 'พฤ. Thu', 'ศ. Fri', 'ส. Sat'];
+  const daysOfWeek = language === 'th'
+    ? ['อา. Sun', 'จ. Mon', 'อ. Tue', 'พ. Wed', 'พฤ. Thu', 'ศ. Fri', 'ส. Sat']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -411,7 +517,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
-                  {currentMonthData.nameTh} {viewYear} ({currentMonthData.nameEn} {viewYear})
+                  {language === 'th' ? `${currentMonthData.nameTh} ${viewYear} (${currentMonthData.nameEn} ${viewYear})` : `${currentMonthData.nameEn} ${viewYear}`}
                 </h3>
                 <span
                   style={{
@@ -426,18 +532,18 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                   ⭐ {currentMonthData.overallScore}/100
                 </span>
                 <span className="editorial-tag tag-green" style={{ fontSize: '11px', fontWeight: 800 }}>
-                  ✈️ แสดงราคาตั๋วบินไป-กลับ (Round-Trip)
+                  {tr('✈️ แสดงราคาตั๋วบินไป-กลับ (Round-Trip)', '✈️ Showing round-trip flight prices')}
                 </span>
               </div>
               <div style={{ fontSize: '12.5px', color: 'var(--sakura-pink)', fontWeight: 600, marginTop: '2px' }}>
-                {currentMonthData.seasonTh} • 🌡️ {currentMonthData.avgTempC.min}°C - {currentMonthData.avgTempC.max}°C • 🌧️ ฝน {currentMonthData.rainyDays} วัน
+                {tr(currentMonthData.seasonTh, currentMonthData.seasonEn)} • 🌡️ {currentMonthData.avgTempC.min}°C - {currentMonthData.avgTempC.max}°C • 🌧️ {tr(`ฝน ${currentMonthData.rainyDays} วัน`, `${currentMonthData.rainyDays} rainy days`)}
               </div>
             </div>
           </div>
 
           {/* Month Stepper Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            {selectedRangeMonthInfo && !selectedRangeMonthInfo.isCurrentView && (
+            {selectedRangeMonthInfo && !isTripInCurrentView && (
               <button
                 onClick={() => {
                   setViewYear(selectedRangeMonthInfo.year);
@@ -453,9 +559,9 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                   gap: '6px',
                   boxShadow: '0 0 14px var(--vermilion-glow)',
                 }}
-                title="กระโดดไปดูเดือนที่เลือกวันเดินทางไว้"
+                title={tr('กระโดดไปดูเดือนที่เลือกวันเดินทางไว้', 'Jump to the month of your selected dates')}
               >
-                <span>🎯 ดูไฮไลท์เดือนที่เลือก ({selectedRangeMonthInfo.monthNameTh.slice(0, 3)} {String(selectedRangeMonthInfo.year).slice(2)})</span>
+                <span>{tr('🎯 ดูไฮไลท์เดือนที่เลือก', '🎯 View selected month')} ({tr(selectedRangeMonthInfo.monthNameTh, selectedRangeMonthInfo.monthNameEn).slice(0, 3)} {String(selectedRangeMonthInfo.year).slice(2)})</span>
               </button>
             )}
 
@@ -466,7 +572,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
               aria-label="Previous Month"
             >
               <ChevronLeft size={16} />
-              <span>เดือนก่อน</span>
+              <span>{tr('เดือนก่อน', 'Previous')}</span>
             </button>
 
             {/* Quick jump to Today */}
@@ -478,9 +584,9 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
               }}
               className="btn-editorial-secondary"
               style={{ padding: '8px 12px', fontSize: '12px' }}
-              title="กลับมาเดือนปัจจุบัน"
+              title={tr('กลับมาเดือนปัจจุบัน', 'Back to the current month')}
             >
-              <span>📍 เดือนนี้</span>
+              <span>{tr('📍 เดือนนี้', '📍 This month')}</span>
             </button>
 
             {/* Quick jump to 2027 Autumn peak */}
@@ -492,9 +598,9 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
               }}
               className="btn-editorial-secondary"
               style={{ padding: '8px 12px', fontSize: '12px' }}
-              title="กระโดดไปช่วงยอดนิยม พ.ย. 2027"
+              title={tr('กระโดดไปช่วงยอดนิยม พ.ย. 2027', 'Jump to popular season, Nov 2027')}
             >
-              <span>🍁 พ.ย. 2027</span>
+              <span>{tr('🍁 พ.ย. 2027', '🍁 Nov 2027')}</span>
             </button>
 
             <button
@@ -503,7 +609,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
               style={{ padding: '8px 14px', fontSize: '13px' }}
               aria-label="Next Month"
             >
-              <span>เดือนถัดไป</span>
+              <span>{tr('เดือนถัดไป', 'Next')}</span>
               <ChevronRight size={16} />
             </button>
           </div>
@@ -512,10 +618,10 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
         {/* 1-Year (16-Months Rolling) Quick Jumper Strip */}
         <div style={{ marginBottom: '16px' }}>
           <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 700, marginBottom: '6px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
-            <span>📆 แถบเลือกเดือน 1 ปีเต็มจากวันนี้ (กดเปลี่ยนเดือนได้ทันที):</span>
+            <span>{tr('📆 แถบเลือกเดือน 1 ปีเต็มจากวันนี้ (กดเปลี่ยนเดือนได้ทันที):', '📆 Month picker for the next full year (tap to switch instantly):')}</span>
             <span style={{ color: 'var(--sakura-pink)' }}>
               {selectedRange?.start && selectedRange?.end && (
-                <span>📍 ทริปที่เลือก: {selectedRange.start} ถึง {selectedRange.end}</span>
+                <span>{tr('📍 ทริปที่เลือก:', '📍 Selected trip:')} {selectedRange.start} {tr('ถึง', 'to')} {selectedRange.end}</span>
               )}
             </span>
           </div>
@@ -531,7 +637,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
           >
             {rollingMonths.map((rm, rIdx) => {
               const isCur = viewYear === rm.year && viewMonth === rm.month;
-              const hasSelectedTrip = selectedRangeMonthInfo?.year === rm.year && selectedRangeMonthInfo?.month === rm.month;
+              const hasSelectedTrip = selectedTripMonths.has(`${rm.year}-${rm.month}`);
 
               return (
                 <button
@@ -566,8 +672,8 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  <span>{rm.monthData.nameTh.slice(0, 3)} {String(rm.year).slice(2)}</span>
-                  {hasSelectedTrip && <span style={{ fontSize: '10px' }} title="เดือนนี้มีวันที่ล็อคไว้">🎯</span>}
+                  <span>{tr(rm.monthData.nameTh, rm.monthData.nameEn).slice(0, 3)} {String(rm.year).slice(2)}</span>
+                  {hasSelectedTrip && <span style={{ fontSize: '10px' }} title={tr('เดือนนี้มีวันที่ล็อคไว้', 'Your trip dates are in this month')}>🎯</span>}
                   {rm.monthData.overallScore >= 95 && <span style={{ fontSize: '10px' }}>👑</span>}
                 </button>
               );
@@ -595,7 +701,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '16px' }}>⚡</span>
               <span>
-                เลือกวันเริ่มต้น <strong>{selectingStart}</strong> แล้ว ➔ <strong>กรุณาคลิกเลือก "วันเดินทางกลับ" ในปฏิทิน</strong> เพื่อจบทริป
+                {language === 'th' ? (<>เลือกวันเริ่มต้น <strong>{selectingStart}</strong> แล้ว ➔ <strong>กรุณาคลิกเลือก "วันเดินทางกลับ" ในปฏิทิน</strong> เพื่อจบทริป</>) : (<>Start date <strong>{selectingStart}</strong> selected ➔ <strong>please click your return date on the calendar</strong> to finish the trip</>)}
               </span>
             </div>
             <button
@@ -603,10 +709,10 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
               className="btn-editorial-secondary"
               style={{ padding: '4px 10px', fontSize: '11px' }}
             >
-              ยกเลิก
+              {tr('ยกเลิก', 'Cancel')}
             </button>
           </div>
-        ) : selectedRangeMonthInfo && !selectedRangeMonthInfo.isCurrentView ? (
+        ) : selectedRangeMonthInfo && !isTripInCurrentView ? (
           <div
             style={{
               padding: '10px 16px',
@@ -626,7 +732,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '14px' }}>📌</span>
               <span>
-                คุณกำลังดูเดือน <strong>{currentMonthData.nameTh} {viewYear}</strong> • วันที่เลือกล็อคไว้คือ <strong>{selectedRange?.start} ถึง {selectedRange?.end} ({selectedRangeMonthInfo.monthNameTh} {selectedRangeMonthInfo.year})</strong>
+                {language === 'th' ? (<>คุณกำลังดูเดือน <strong>{currentMonthData.nameTh} {viewYear}</strong> • วันที่เลือกล็อคไว้คือ <strong>{selectedRange?.start} ถึง {selectedRange?.end} ({selectedRangeMonthInfo.monthNameTh} {selectedRangeMonthInfo.year})</strong></>) : (<>You are viewing <strong>{currentMonthData.nameEn} {viewYear}</strong> • Your locked dates are <strong>{selectedRange?.start} to {selectedRange?.end} ({selectedRangeMonthInfo.monthNameEn} {selectedRangeMonthInfo.year})</strong></>)}
               </span>
             </div>
             <button
@@ -638,7 +744,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
               className="btn-editorial-primary"
               style={{ padding: '4px 12px', fontSize: '11.5px' }}
             >
-              กระโดดไปดูไฮไลท์ {selectedRangeMonthInfo.monthNameTh} ➔
+              {tr('กระโดดไปดูไฮไลท์', 'Jump to highlights:')} {tr(selectedRangeMonthInfo.monthNameTh, selectedRangeMonthInfo.monthNameEn)} ➔
             </button>
           </div>
         ) : null}
@@ -657,27 +763,27 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
           }}
         >
           <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 700, color: '#fff' }}>🏷️ ดัชนีราคาตั๋วเครื่องบินไป-กลับ (Round-Trip รวมภาษี):</span>
+            <span style={{ fontWeight: 700, color: '#fff' }}>{tr('🏷️ ดัชนีราคาตั๋วเครื่องบินไป-กลับ (Round-Trip รวมภาษี):', '🏷️ Round-trip flight price index (incl. tax):')}</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399' }} />
-              <span>โปรคุ้มสุด (&lt; ฿10,000)</span>
+              <span>{tr('โปรคุ้มสุด', 'Best deal')} (&lt; ฿10,000)</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#38bdf8' }} />
-              <span>ราคาปกติ (฿10k-13.5k)</span>
+              <span>{tr('ราคาปกติ', 'Regular')} (฿10k-13.5k)</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b' }} />
-              <span>วันหยุด/สุดสัปดาห์ (฿13.5k-16.5k)</span>
+              <span>{tr('วันหยุด/สุดสัปดาห์', 'Holiday/weekend')} (฿13.5k-16.5k)</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />
-              <span>ช่วงพีค/เทศกาล (&gt; ฿17,000)</span>
+              <span>{tr('ช่วงพีค/เทศกาล', 'Peak/festival')} (&gt; ฿17,000)</span>
             </span>
           </div>
 
           <div style={{ color: 'var(--text-tertiary)' }}>
-            💡 คลิกเลือกวันเริ่มต้น แล้วคลิกเลือกวันเดินทางกลับ
+            {tr('💡 คลิกเลือกวันเริ่มต้น แล้วคลิกเลือกวันเดินทางกลับ', '💡 Click a start date, then click a return date')}
           </div>
         </div>
 
@@ -701,22 +807,22 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '14px', fontWeight: 900, color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <CalendarDays size={18} color="#ff4d6d" />
-                <span>ไฮไลท์ช่วงวันที่เลือก:</span>
+                <span>{tr('ไฮไลท์ช่วงวันที่เลือก:', 'Selected dates:')}</span>
               </span>
               <span style={{ background: '#e11d48', color: '#fff', padding: '3px 10px', borderRadius: '6px', fontWeight: 900, fontSize: '13px', boxShadow: '0 2px 8px rgba(225, 29, 72, 0.5)' }}>
-                🛫 บินไป: {selectedRange.start}
+                {tr('🛫 บินไป:', '🛫 Depart:')} {selectedRange.start}
               </span>
               <span style={{ color: 'var(--text-tertiary)', fontWeight: 800 }}>➔</span>
               <span style={{ background: '#0284c7', color: '#fff', padding: '3px 10px', borderRadius: '6px', fontWeight: 900, fontSize: '13px', boxShadow: '0 2px 8px rgba(2, 132, 199, 0.5)' }}>
-                🛬 บินกลับ: {selectedRange.end}
+                {tr('🛬 บินกลับ:', '🛬 Return:')} {selectedRange.end}
               </span>
               <span style={{ background: 'rgba(255,255,255,0.1)', color: '#38bdf8', padding: '3px 8px', borderRadius: '6px', fontWeight: 800, fontSize: '12px' }}>
-                ⏱️ รวม {Math.ceil(Math.abs(new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} วัน
+                ⏱️ {tr('รวม', 'Total')} {Math.ceil(Math.abs(new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} {tr('วัน', 'days')}
               </span>
             </div>
 
             <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)' }}>
-              💡 คลิกวันใหม่ในตารางเพื่อเปลี่ยนช่วงวัน
+              {tr('💡 คลิกวันใหม่ในตารางเพื่อเปลี่ยนช่วงวัน', '💡 Click new dates on the calendar to change the range')}
             </div>
           </div>
         )}
@@ -760,21 +866,8 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                 gap: '6px',
               }}
             >
-              {calendarDays.map((dayItem, idx) => {
-                if (!dayItem) {
-                  return (
-                    <div
-                      key={`empty-${idx}`}
-                      style={{
-                        height: '84px',
-                        borderRadius: '10px',
-                        background: 'rgba(255, 255, 255, 0.01)',
-                      }}
-                    />
-                  );
-                }
-
-                const { dateStr, day, dayOfWeek, isPast, isToday, roundTripPrice, priceTier, specialEvent } = dayItem;
+              {calendarDays.map((dayItem) => {
+                const { dateStr, day, dayOfWeek, isCurrentMonth, monthLabel, isPast, isToday, roundTripPrice, priceTier, specialEvent } = dayItem;
                 const isStart = isRangeStart(dateStr);
                 const isEnd = isRangeEnd(dateStr);
                 const inRange = isInRange(dateStr);
@@ -789,8 +882,8 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                 if (priceTier === 'peak') priceColor = '#ef4444';
 
                 // Highlighting style determination
-                let cellBorder = '1px solid var(--border-hairline)';
-                let cellBg = 'var(--bg-surface-raised)';
+                let cellBorder = isCurrentMonth ? '1px solid var(--border-hairline)' : '1px dashed rgba(255, 255, 255, 0.15)';
+                let cellBg = isCurrentMonth ? 'var(--bg-surface-raised)' : 'rgba(20, 26, 36, 0.45)';
                 let cellShadow = 'none';
                 let cellTransform = 'none';
                 let cellZIndex = 1;
@@ -836,7 +929,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                       flexDirection: 'column',
                       justifyContent: 'space-between',
                       cursor: isPast ? 'not-allowed' : 'pointer',
-                      opacity: isPast ? 0.35 : 1,
+                      opacity: isPast ? 0.35 : !isCurrentMonth && !isStart && !isEnd && !inRange && !inHover ? 0.72 : 1,
                       position: 'relative',
                       border: cellBorder,
                       background: cellBg,
@@ -846,37 +939,51 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                       transition: 'all 0.15s ease',
                     }}
                   >
-                    {/* Top Row: Date number + Badges */}
+                    {/* Top Row: Date number + Month label + Badges */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <span
-                        style={{
-                          fontSize: '14px',
-                          fontWeight: 800,
-                          color: isStart || isEnd || inRange ? '#fff' : isWeekend ? '#f472b6' : '#fff',
-                          textShadow: isStart || isEnd || inRange ? '0 1px 3px rgba(0,0,0,0.6)' : 'none',
-                        }}
-                      >
-                        {day}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px' }}>
+                        <span
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 800,
+                            color: isStart || isEnd || inRange ? '#fff' : !isCurrentMonth ? 'var(--text-tertiary)' : isWeekend ? '#f472b6' : '#fff',
+                            textShadow: isStart || isEnd || inRange ? '0 1px 3px rgba(0,0,0,0.6)' : 'none',
+                          }}
+                        >
+                          {day}
+                        </span>
+                        {!isCurrentMonth && monthLabel && (
+                          <span
+                            style={{
+                              fontSize: '9.5px',
+                              fontWeight: 700,
+                              color: isStart || isEnd || inRange ? 'rgba(255, 255, 255, 0.85)' : 'var(--text-tertiary)',
+                              letterSpacing: '-0.2px',
+                            }}
+                          >
+                            {monthLabel}
+                          </span>
+                        )}
+                      </div>
 
                       {isToday && !isStart && !isEnd && !inRange && (
                         <span style={{ fontSize: '9px', background: '#38bdf8', color: '#000', padding: '1px 4px', borderRadius: '3px', fontWeight: 800 }}>
-                          วันนี้
+                          {tr('วันนี้', 'Today')}
                         </span>
                       )}
                       {isStart && (
                         <span style={{ fontSize: '9px', background: '#fff', color: '#d50000', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-                          🛫 วันไป
+                          {tr('🛫 วันไป', '🛫 Depart')}
                         </span>
                       )}
                       {isEnd && !isStart && (
                         <span style={{ fontSize: '9px', background: '#fff', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', fontWeight: 900, boxShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
-                          🛬 วันกลับ
+                          {tr('🛬 วันกลับ', '🛬 Return')}
                         </span>
                       )}
                       {inRange && tripInfo && (
                         <span style={{ fontSize: '8.5px', background: '#ff4d6d', color: '#fff', padding: '1px 5px', borderRadius: '3px', fontWeight: 900 }}>
-                          ✨ วันที่ {tripInfo.dayIdx}/{tripInfo.totalDays}
+                          ✨ {tr('วันที่', 'Day')} {tripInfo.dayIdx}/{tripInfo.totalDays}
                         </span>
                       )}
                     </div>
@@ -894,13 +1001,13 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {specialEvent.label}
+                        {tr(specialEvent.label, specialEvent.labelEn)}
                       </div>
                     )}
 
                     {isPast && (
                       <div style={{ fontSize: '9.5px', color: 'var(--text-tertiary)' }}>
-                        ผ่านไปแล้ว
+                        {tr('ผ่านไปแล้ว', 'Past')}
                       </div>
                     )}
 
@@ -918,7 +1025,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                           {formatPrice(roundTripPrice)}
                         </span>
                         <span style={{ fontSize: '9px', color: isStart || isEnd || inRange ? 'rgba(255,255,255,0.9)' : 'var(--text-tertiary)', fontWeight: 600 }}>
-                          ไป-กลับ
+                          {tr('ไป-กลับ', 'RT')}
                         </span>
                       </div>
                     ) : (
@@ -949,21 +1056,21 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className="editorial-tag tag-green" style={{ fontSize: '12px', fontWeight: 800 }}>
-                    <Check size={13} /> ล็อควันเดินทางแล้ว
+                    <Check size={13} /> {tr('ล็อควันเดินทางแล้ว', 'Dates locked')}
                   </span>
                   <span style={{ fontSize: '15px', fontWeight: 800, color: '#fff' }}>
-                    {selectedRange.start} ถึง {selectedRange.end}
+                    {selectedRange.start} {tr('ถึง', 'to')} {selectedRange.end}
                   </span>
                 </div>
 
                 {rangeFlightEstimate && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>ราคาตั๋วบินไป-กลับประมาณการ:</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{tr('ราคาตั๋วบินไป-กลับประมาณการ:', 'Estimated round-trip fare:')}</span>
                     <strong style={{ color: '#34d399', fontSize: '16px', fontWeight: 800 }}>
                       {formatPrice(rangeFlightEstimate.totalRoundTrip)}
                     </strong>
                     <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                      (ขาไป {formatPrice(rangeFlightEstimate.departPrice)} + ขากลับ {formatPrice(rangeFlightEstimate.returnPrice)})
+                      ({tr('ขาไป', 'Outbound')} {formatPrice(rangeFlightEstimate.departPrice)} + {tr('ขากลับ', 'Return')} {formatPrice(rangeFlightEstimate.returnPrice)})
                     </span>
                   </div>
                 )}
@@ -971,7 +1078,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
 
               <div style={{ fontSize: '12px', color: 'var(--fuji-cyan)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Clock size={14} />
-                <span>ระยะเวลาทริป: <strong>{Math.ceil(Math.abs(new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} วัน</strong></span>
+                <span>{tr('ระยะเวลาทริป:', 'Trip length:')} <strong>{Math.ceil(Math.abs(new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} {tr('วัน', 'days')}</strong></span>
               </div>
             </div>
 
@@ -988,7 +1095,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
             >
               <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Plane size={14} color="var(--vermilion)" />
-                <span>ดึงราคาจริง & จองตั๋วปลายทาง:</span>
+                <span>{tr('ดึงราคาจริง & จองตั๋วปลายทาง:', 'Live prices & book flights:')}</span>
               </span>
 
               <a
@@ -1005,7 +1112,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                   gap: '6px',
                 }}
               >
-                <span>🌐 เช็คสดบน Google Flights</span>
+                <span>{tr('🌐 เช็คสดบน Google Flights', '🌐 Check live on Google Flights')}</span>
                 <ExternalLink size={12} />
               </a>
 
@@ -1026,7 +1133,7 @@ export const InteractiveFlightCalendar: React.FC<InteractiveFlightCalendarProps>
                   border: '1px solid rgba(56, 189, 248, 0.3)',
                 }}
               >
-                <span>🔍 เปรียบเทียบบน Skyscanner</span>
+                <span>{tr('🔍 เปรียบเทียบบน Skyscanner', '🔍 Compare on Skyscanner')}</span>
                 <ExternalLink size={12} />
               </a>
 

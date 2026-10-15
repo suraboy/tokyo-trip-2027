@@ -5,11 +5,11 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     // 1. Fetch Real-time JPY to THB Forex rate
-    let jpyToThb = 0.232;
+    let jpyToThb = 0.21;
     let forexUpdatedAt = new Date().toISOString();
     try {
       const forexRes = await fetch('https://open.er-api.com/v6/latest/JPY', {
-        next: { revalidate: 3600 },
+        next: { revalidate: 300 },
       });
       if (forexRes.ok) {
         const forexData = await forexRes.json();

@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { CommunityTripPlan, Currency, Language } from '@/types/travel';
-import { MONTHS_DATA, JPY_TO_THB_RATE } from '@/data/mockData';
+import { MONTHS_DATA } from '@/data/mockData';
+import { useJpyThbRate } from '@/hooks/useJpyThbRate';
 import { useI18n } from '@/utils/i18n';
 import { 
   Users, 
@@ -32,6 +33,7 @@ export const CommunityPlansSection: React.FC<CommunityPlansSectionProps> = ({
   currency,
   language,
 }) => {
+  const JPY_TO_THB_RATE = useJpyThbRate();
   const [filterDuration, setFilterDuration] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [likedTripIds, setLikedTripIds] = useState<string[]>([]);

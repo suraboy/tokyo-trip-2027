@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { Attraction, Currency } from '@/types/travel';
-import { ATTRACTIONS_DATA, JPY_TO_THB_RATE } from '@/data/mockData';
+import { ATTRACTIONS_DATA } from '@/data/mockData';
+import { useJpyThbRate } from '@/hooks/useJpyThbRate';
 import { 
   MapPin, 
   Search, 
@@ -29,6 +30,7 @@ export const AttractionsTab: React.FC<AttractionsTabProps> = ({
   onSelectAttractionForModal,
   currency,
 }) => {
+  const JPY_TO_THB_RATE = useJpyThbRate();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedCity, setSelectedCity] = useState<string>('all');

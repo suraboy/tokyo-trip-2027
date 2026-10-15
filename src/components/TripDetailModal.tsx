@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { CommunityTripPlan, Currency, Language } from '@/types/travel';
-import { MONTHS_DATA, JPY_TO_THB_RATE } from '@/data/mockData';
+import { MONTHS_DATA } from '@/data/mockData';
+import { useJpyThbRate } from '@/hooks/useJpyThbRate';
 import { 
   X, 
   User, 
@@ -28,6 +29,7 @@ export const TripDetailModal: React.FC<TripDetailModalProps> = ({
   currency,
   language = 'th',
 }) => {
+  const JPY_TO_THB_RATE = useJpyThbRate();
   if (!trip) return null;
 
   const monthObj = MONTHS_DATA.find((m) => m.month === trip.target_month);

@@ -9,8 +9,10 @@ import {
   Plus, 
   MapPin,
   Heart,
-  Globe
+  Globe,
+  Coins
 } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface NavbarProps {
   currency: Currency;
@@ -101,38 +103,48 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <div className="navbar-toggle-group">
-            {/* Language Switcher */}
-            <div className="segmented-control">
-              <button
-                onClick={() => setLanguage('th')}
-                className={`segmented-btn ${language === 'th' ? 'active' : ''}`}
-                title="ภาษาไทย"
-              >
-                TH
-              </button>
-              <button
-                onClick={() => setLanguage('en')}
-                className={`segmented-btn ${language === 'en' ? 'active' : ''}`}
-                title="English"
-              >
-                EN
-              </button>
-            </div>
+            {/* Dedicated Modern Language Switcher */}
+            <LanguageSwitcher
+              language={language}
+              onLanguageChange={setLanguage}
+            />
 
             {/* Currency Toggle */}
-            <div className="segmented-control">
-              <button
-                onClick={() => setCurrency('THB')}
-                className={`segmented-btn ${currency === 'THB' ? 'active' : ''}`}
-              >
-                ฿ THB
-              </button>
-              <button
-                onClick={() => setCurrency('JPY')}
-                className={`segmented-btn ${currency === 'JPY' ? 'active' : ''}`}
-              >
-                ¥ JPY
-              </button>
+            <div
+              className="currency-control"
+              role="radiogroup"
+              aria-label="Currency selector / สลับสกุลเงิน"
+              title={language === 'th' ? 'เปลี่ยนสกุลเงินที่แสดง (THB/JPY)' : 'Switch Currency (THB/JPY)'}
+            >
+              <div className="currency-icon-wrapper" aria-hidden="true">
+                <Coins size={12} className="currency-coins-icon" />
+              </div>
+              <div className="currency-track">
+                <div
+                  className={`currency-indicator ${currency === 'JPY' ? 'indicator-jpy' : 'indicator-thb'}`}
+                  aria-hidden="true"
+                />
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={currency === 'THB'}
+                  onClick={() => setCurrency('THB')}
+                  className={`currency-btn ${currency === 'THB' ? 'active' : ''}`}
+                  title="บาทไทย (THB)"
+                >
+                  ฿ THB
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={currency === 'JPY'}
+                  onClick={() => setCurrency('JPY')}
+                  className={`currency-btn ${currency === 'JPY' ? 'active' : ''}`}
+                  title="เยนญี่ปุ่น (JPY)"
+                >
+                  ¥ JPY
+                </button>
+              </div>
             </div>
           </div>
         </div>
